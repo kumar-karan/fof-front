@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FUNDMAP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap"
+      rel="stylesheet" />
+    <style>
+      :root {
+        --nav-bg: #eaf1fa;
+        --nav-blue: #1662ac;
+        --node-shadow: 0 3px 16px -8px #b4cae155;
+        --node-border: #c6d2e6;
+        --fund-red: #e85663;
+        --canvas-bg: #f7fafc;
+        --node-bg: #fff;
+        --node-fg: #1f2937;
+        --edge-main: #5398da;
+        --edge-major: #e85663;
+        --sidebar-bg: #fbfcfe;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+      }
+      body {
+        background: var(--canvas-bg);
+        color: #233357;
+        font-family: "Inter", Arial, sans-serif;
+        min-height: 100vh;
+        min-width: 100vw;
+        overflow: hidden;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 62px;
+        z-index: 50;
+        background: var(--nav-bg);
+        color: var(--nav-blue);
+        font-size: 1.12rem;
+        padding: 0 2vw;
+        border-bottom: 1px solid #dde2f4;
+        box-shadow: 0 3px 20px -12px #b1cae745;
+      }
+      .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 1.15em;
+      }
+      .nav-logoimg {
+        width: 3rem;
+        height: 3rem;
+        /* border-radius: 0.5em;
+        background: #fff; */
+        object-fit: contain;
+        margin-right: -1rem;
+      }
+      .nav-logotextimg {
+        height: 2rem;
+        margin-top: 0.5rem;
+        /* margin-left: 0em; */
+        margin-right: 0.7em;
+        object-fit: contain;
+      }
+      .nav-title-company {
+        font-size: 1.01em;
+        margin-left: 0.3em;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: var(--nav-blue);
+      }
+      .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+      }
+      .nav-upload-btn {
+        background: #fff;
+        color: var(--nav-blue);
+        border: 1.4px solid #bdd6ee;
+        border-radius: 7px;
+        padding: 0.42em 1em;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.97em;
+        transition: background 0.13s, border 0.16s, color 0.13s;
+        margin-left: 0.2em; /* Adjusted margin to move the button to the left */
+        margin-right: 3.5em; /* Added margin-right to prevent it from going out of screen */
+      }
+
+      .nav-upload-btn:focus,
+      .nav-upload-btn:hover {
+        background: #f7fbfd;
+        border-color: var(--nav-blue);
+      }
+      .nav-upload-btn input[type="file"] {
+        display: none;
+      }
+      #canvas-outer {
+        position: absolute;
+        left: 0;
+        top: 62px;
+        right: 0;
+        bottom: 0;
+        overflow: auto;
+        width: 100vw;
+        height: calc(100vh - 62px);
+        background: var(--canvas-bg);
+      }
+      #canvas-stack {
+        position: relative;
+      }
+      #edgesSVG {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+      #nodeLayer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 2;
+      }
+      .sidebar {
+        position: fixed;
+        top: 62px;
+        right: 0;
+        width: 300px;
+        height: calc(100vh - 62px);
+        background: var(--sidebar-bg);
+        border-left: 2px solid #dde6f1;
+        box-shadow: -2px 0 20px -11px #b7bed733;
+        z-index: 30;
+        min-width: 180px;
+        max-width: 320px;
+        padding: 1.3em 1em 1em 1.15em;
+        font-size: 0.98em;
+        overflow-y: auto;
+        display: none;
+        flex-direction: column;
+      }
+      .sidebar.open {
+        display: flex;
+      }
+      .close-sidebar {
+        position: absolute;
+        top: 0.5em;
+        right: 0.7em;
+        background: none;
+        border: none;
+        font-size: 1.7em;
+        color: #a7aebb;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .close-sidebar:focus,
+      .close-sidebar:hover {
+        color: var(--fund-red);
+        background: #f5e9eb;
+      }
+      .side-h2 {
+        font-weight: 700;
+        margin: 0 0 0.4em;
+      }
+      .side-kv {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px dashed #e3e3e3;
+        font-size: 0.8em;
+        padding: 0.17em 0.22em;
+      }
+      .side-k {
+        color: #2866ac;
+        font-weight: 500;
+      }
+      .side-v {
+        font-weight: 600;
+        color: #314;
+      }
+      .side-actions {
+        margin-top: 0.8em;
+        display: flex;
+        gap: 0.52em;
+      }
+      .side-actions button {
+        flex: 1;
+        padding: 0.34em 0;
+        border-radius: 7px;
+        border: 1.1px solid #bdd6ee;
+        font-weight: 600;
+        font-size: 0.96em;
+        background: #f8fafc;
+        color: #2061a7;
+        cursor: pointer;
+      }
+      .side-actions button:focus,
+      .side-actions button:hover {
+        background: #eaf2fb;
+      }
+      .nodebox {
+        position: absolute;
+        min-width: 135px;
+        max-width: 200px;
+        min-height: 45px;
+        background: var(--node-bg);
+        border-radius: 10px;
+        border: 2px solid var(--node-border);
+        border-left: 6px solid transparent;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #1f2937;
+        box-shadow: var(--node-shadow, 0 2px 14px -9px #b4cae199);
+        padding: 0.52em 0.7em 0.5em 0.8em;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        outline: none;
+        opacity: 1;
+        pointer-events: auto;
+        transition: box-shadow 0.13s, border 0.13s, background 0.12s,
+          opacity 0.22s, transform 0.25s cubic-bezier(0.53, 1.24, 0.52, 1);
+      }
+      .nodebox.major {
+        border-left: 6px solid #e85663;
+        border-color: #e85663;
+        background: #fff8f7;
+        color: #bb182e;
+      }
+      .nodebox.selected,
+      .nodebox:focus-visible {
+        border-color: #1662ac;
+        background: #e8f3fc;
+        outline: 2px solid #1662ac;
+      }
+      .nodebox:hover {
+        border-color: #1662ac;
+        background: #f2f7fc;
+        z-index: 3;
+        box-shadow: 0 4px 22px -10px #6fa4cf17;
+      }
+      .nodebox.anim-hide {
+        opacity: 0;
+        transform: translateY(18px);
+        pointer-events: none;
+      }
+      .nodebox.anim-show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .node-header {
+        font-weight: 700;
+        margin-bottom: 0.13em;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+      }
+      .toggle-arrow {
+        font-size: 0.97em;
+        color: #1662ac;
+        font-weight: 700;
+        margin-right: 0.16em;
+        transition: transform 0.16s;
+        display: inline-block;
+      }
+      .cusip-label {
+        color: #497bb0;
+        font-size: 0.82em;
+        font-weight: 500;
+        margin: 0.09em 0 0.35em 0;
+      }
+      .node-body {
+        font-size: 0.92em;
+        color: #3c576c;
+      }
+      .node-pill {
+        display: inline-block;
+        font-size: 0.79em;
+        padding: 0.11em 0.46em;
+        border-radius: 0.94em;
+        font-weight: 600;
+      }
+      .node-pill.major {
+        background: #ffe6e4;
+        color: #e85663;
+      }
+      .node-pill.bench {
+        background: #e6fbe8;
+        color: #219150;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-left">
+        <img class="nav-logoimg" src="images/logo.png" alt="FUNDMAP Logo" />
+        <img class="nav-logotextimg" src="images/logotext.png" alt="FUNDMAP" />
+        <!-- <span class="nav-title-company">FUNDMAP</span> -->
+      </div>
+      <div class="nav-controls">
+        <label class="nav-upload-btn">
+          <input type="file" id="jsonFile" accept=".json,application/json" />
+          Upload JSON
+        </label>
+      </div>
+    </nav>
+    <div id="canvas-outer">
+      <div id="canvas-stack">
+        <svg id="edgesSVG"></svg>
+        <div id="nodeLayer"></div>
+      </div>
+      <div class="sidebar" id="sidePanel"></div>
+    </div>
+    <script>
+      const NODE_W = 172,
+        NODE_H = 67,
+        H_GAP = 62,
+        V_GAP = 48,
+        ANIM_MS = 280;
+      let collapseState = {},
+        treeData = null,
+        animating = false;
+      document.getElementById("jsonFile").onclick = function () {
+        this.value = null;
+      };
+      document
+        .getElementById("jsonFile")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function (evt) {
+            try {
+              collapseState = {};
+              treeData = JSON.parse(evt.target.result);
+              renderTree();
+            } catch (e) {
+              alert("Invalid JSON: " + e.message);
+            }
+          };
+          reader.readAsText(file);
+        });
+
+      function layoutTreeRightAligned(
+        node,
+        x = 0,
+        rowAlloc = { val: 0 },
+        parentId = "",
+        depth = 0
+      ) {
+        const id = (parentId ? parentId + "|" : "") + node.name;
+        const collapsed = collapseState[id];
+        const children = !collapsed && node.children ? node.children : [];
+        let nodes = [],
+          edges = [];
+        let myRow = rowAlloc.val++;
+        let thisY = myRow * (NODE_H + V_GAP) + 30;
+        nodes.push({ id, node, x, y: thisY, major: !!node.major_path, depth });
+        if (children.length) {
+          let localRowAlloc = { val: myRow };
+          for (let i = 0; i < children.length; ++i) {
+            let useRowAlloc = i === 0 ? localRowAlloc : rowAlloc;
+            let { nodes: childNodes, edges: childEdges } =
+              layoutTreeRightAligned(
+                children[i],
+                x + NODE_W + H_GAP,
+                useRowAlloc,
+                id,
+                depth + 1
+              );
+            nodes = nodes.concat(childNodes);
+            edges = edges.concat(childEdges);
+            edges.push({
+              from: { x: x + NODE_W, y: thisY + NODE_H / 2 },
+              to: { x: childNodes[0].x, y: childNodes[0].y + NODE_H / 2 },
+              major: !!children[i].major_path,
+            });
+            if (i === 0)
+              rowAlloc.val = Math.max(rowAlloc.val, localRowAlloc.val);
+          }
+        }
+        return { nodes, edges };
+      }
+      function createNodeBox(pos, openDetailSidebar) {
+        const node = pos.node;
+        const box = document.createElement("div");
+        box.className = "nodebox" + (pos.major ? " major" : "");
+        box.style.left = pos.x + "px";
+        box.style.top = pos.y + "px";
+        box.style.width = NODE_W + "px";
+        let arrow =
+          node.children && node.children.length
+            ? `<span class="toggle-arrow">&#9654;</span>`
+            : "";
+        box.innerHTML = `<div class="node-header">${arrow}${node.name}</div>
+        <div class="cusip-label">${node.sec_group || ""}${
+          node.sec_type ? " / " + node.sec_type : ""
+        }${
+          node.major_path
+            ? `<span class="node-pill major" style="margin-left:.8em;"></span>`
+            : ""
+        }${
+          node.is_benchmark
+            ? ` <span class="node-pill bench">Benchmark</span>`
+            : ""
+        }</div>
+        <div class="node-body">
+          <div class="node-key-value"><span class="node-key">OAD tdy:</span><span class="node-val">${
+            node.oad_today ?? "-"
+          }</span>
+          <span class="node-key">Yday:</span><span class="node-val">${
+            node.oad_yesterday ?? "-"
+          }</span>
+          <span class="node-key">Δ%:</span><span class="node-val">${
+            typeof node.oad_change_pct !== "undefined"
+              ? (node.oad_change_pct > 0 ? "+" : "") + node.oad_change_pct + "%"
+              : "-"
+          }</span>
+          </div>
+        </div>`;
+        box.tabIndex = 0;
+        box.onclick = function (e) {
+          if (
+            node.children &&
+            node.children.length &&
+            e.target &&
+            e.target.classList &&
+            e.target.classList.contains("toggle-arrow")
+          ) {
+            collapseState[pos.id] = !collapseState[pos.id];
+            animating = true;
+            const affectedIds = findNodeBranchIds(node);
+            affectedIds.forEach((id) => {
+              const el = document.querySelector(`[data-node-id="${id}"]`);
+              if (el) {
+                el.classList.remove("anim-show");
+                void el.offsetWidth;
+                el.classList.add("anim-hide");
+              }
+            });
+            setTimeout(() => {
+              renderTree();
+              affectedIds.forEach((id) => {
+                const el = document.querySelector(`[data-node-id="${id}"]`);
+                if (el) el.classList.add("anim-show");
+              });
+              setTimeout(() => (animating = false), ANIM_MS + 10);
+            }, ANIM_MS);
+          } else if (!animating) {
+            openDetailSidebar(pos);
+          }
+          e.stopPropagation();
+        };
+        box.setAttribute("data-node-id", pos.id);
+        box.classList.add("anim-show");
+        return box;
+      }
+      function findNodeBranchIds(node) {
+        let out = [node.name];
+        if (node.children)
+          for (const ch of node.children)
+            out = out.concat(findNodeBranchIds(ch));
+        return out;
+      }
+      function renderDetailSidebar(pos) {
+        const node = pos.node;
+        const sidebar = document.getElementById("sidePanel");
+        let html = `<button class="close-sidebar" onclick="document.getElementById('sidePanel').classList.remove('open')">&times;</button>`;
+        html += `<h2 class="side-h2">${node.name}</h2>`;
+        html += `<div class="side-kv"><span class="side-k">CUSIP</span><span class="side-v">${node.name}</span></div>`;
+        if (node.cusip)
+          html += `<div class="side-kv"><span class="side-k">Alt CUSIP</span><span class="side-v">${node.cusip}</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">SEC GROUP</span><span class="side-v">${
+          node.sec_group || "-"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">SEC TYPE</span><span class="side-v">${
+          node.sec_type || "-"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD (Today)</span><span class="side-v">${
+          node.oad_today ?? "-"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD (Yday)</span><span class="side-v">${
+          node.oad_yesterday ?? "-"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD Δ %</span><span class="side-v">${
+          typeof node.oad_change_pct !== "undefined"
+            ? (node.oad_change_pct > 0 ? "+" : "") + node.oad_change_pct + "%"
+            : "-"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">Benchmark</span><span class="side-v">${
+          node.is_benchmark ? "✔️" : "—"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">Major Path</span><span class="side-v">${
+          node.major_path ? "✔️" : "—"
+        }</span></div>`;
+        if (node.children && node.children.length)
+          html += `<div class="side-kv"><span class="side-k">Children</span><span class="side-v">${node.children.length}</span></div>`;
+        html += `<div class="side-actions">
+        <button onclick="expandBranch('${pos.id}')">Expand Branch</button>
+        <button onclick="collapseBranch('${pos.id}')">Collapse Branch</button>
+      </div>`;
+        sidebar.innerHTML = html;
+        sidebar.classList.add("open");
+        sidebar.onclick = (e) => e.stopPropagation();
+        window.expandBranch = function (id) {
+          collapseState[id] = false;
+          renderTree();
+        };
+        window.collapseBranch = function (id) {
+          collapseState[id] = true;
+          renderTree();
+        };
+      }
+      function renderTree() {
+        const cstack = document.getElementById("canvas-stack"),
+          cinner = document.getElementById("nodeLayer"),
+          svg = document.getElementById("edgesSVG"),
+          sidebar = document.getElementById("sidePanel");
+        cinner.innerHTML = "";
+        svg.innerHTML = "";
+        sidebar.classList.remove("open");
+        if (!treeData) return;
+        const { nodes, edges } = layoutTreeRightAligned(treeData, 40, {
+          val: 0,
+        });
+        let allX = nodes.map((n) => n.x),
+          allY = nodes.map((n) => n.y);
+        let cW = Math.max(...allX, 0) + NODE_W + 200,
+          cH = Math.max(...allY, 0) + NODE_H + 180;
+        cstack.style.width = cW + "px";
+        cstack.style.height = cH + "px";
+        cinner.style.width = cW + "px";
+        cinner.style.height = cH + "px";
+        svg.setAttribute("width", cW);
+        svg.setAttribute("height", cH);
+        edges.forEach((e) => {
+          let mx = (e.from.x + e.to.x) / 2;
+          svg.innerHTML += `<path d="M${e.from.x},${e.from.y} C${mx},${
+            e.from.y
+          } ${mx},${e.to.y} ${e.to.x},${e.to.y}" stroke="${
+            e.major ? "var(--edge-major)" : "var(--edge-main)"
+          }" stroke-width="2.1" fill="none"/>`;
+        });
+        nodes.forEach((pos) => {
+          let el = createNodeBox(pos, renderDetailSidebar);
+          el.classList.add("anim-show");
+          cinner.appendChild(el);
+        });
+        document.body.onclick = () => sidebar.classList.remove("open");
+      }
+      document.getElementById("sidePanel").onclick = (e) => e.stopPropagation();
+      document.body.onclick = () =>
+        document.getElementById("sidePanel").classList.remove("open");
+    </script>
+  </body>
+</html>
