@@ -5,21 +5,21 @@
     <title>FUNDMAP</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
-      href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap"
+      href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap"
       rel="stylesheet" />
     <style>
       :root {
         --nav-bg: #eaf1fa;
         --nav-blue: #1662ac;
-        --node-shadow: 0 3px 16px -8px #b4cae155;
-        --node-border: #c6d2e6;
         --fund-red: #e85663;
-        --canvas-bg: #f7fafc;
-        --node-bg: #fff;
-        --node-fg: #1f2937;
+        --node-border: #c6d2e6;
         --edge-main: #5398da;
         --edge-major: #e85663;
+        --canvas-bg: #f7fafc;
+        --node-bg: #fff;
         --sidebar-bg: #fbfcfe;
+        --positive: #219150;
+        --negative: #e85663;
       }
       html,
       body {
@@ -32,9 +32,6 @@
         background: var(--canvas-bg);
         color: #233357;
         font-family: "Inter", Arial, sans-serif;
-        min-height: 100vh;
-        min-width: 100vw;
-        overflow: hidden;
       }
       .navbar {
         display: flex;
@@ -44,11 +41,11 @@
         top: 0;
         left: 0;
         width: 100vw;
-        height: 62px;
+        height: 64px;
         z-index: 50;
         background: var(--nav-bg);
         color: var(--nav-blue);
-        font-size: 1.12rem;
+        font-size: 1.13rem;
         padding: 0 2vw;
         border-bottom: 1px solid #dde2f4;
         box-shadow: 0 3px 20px -12px #b1cae745;
@@ -59,22 +56,19 @@
         gap: 1.15em;
       }
       .nav-logoimg {
-        width: 3rem;
-        height: 3rem;
-        /* border-radius: 0.5em;
-        background: #fff; */
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5em;
         object-fit: contain;
-        margin-right: -1rem;
       }
       .nav-logotextimg {
-        height: 2rem;
-        margin-top: 0.5rem;
-        /* margin-left: 0em; */
+        height: 1.55rem;
+        margin-left: 0.18em;
         margin-right: 0.7em;
         object-fit: contain;
       }
       .nav-title-company {
-        font-size: 1.01em;
+        font-size: 1.04em;
         margin-left: 0.3em;
         font-weight: 700;
         letter-spacing: 0.01em;
@@ -95,10 +89,8 @@
         cursor: pointer;
         font-size: 0.97em;
         transition: background 0.13s, border 0.16s, color 0.13s;
-        margin-left: 0.2em; /* Adjusted margin to move the button to the left */
-        margin-right: 3.5em; /* Added margin-right to prevent it from going out of screen */
+        margin-left: 0.5em;
       }
-
       .nav-upload-btn:focus,
       .nav-upload-btn:hover {
         background: #f7fbfd;
@@ -107,25 +99,81 @@
       .nav-upload-btn input[type="file"] {
         display: none;
       }
+      .main-form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.7em;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 100vw;
+        z-index: 21;
+        background: rgba(255, 255, 255, 0.96);
+        padding: 0.76em 0 0.76em 0;
+        box-shadow: 0 4px 17px -10px #5fa9e080;
+      }
+      .main-form label {
+        font-weight: 600;
+        color: #365987;
+        font-size: 1.03em;
+        margin-right: 6px;
+      }
+      .main-form input[type="text"],
+      .main-form input[type="date"] {
+        font-size: 1.04em;
+        padding: 0.44em 1em 0.4em 1em;
+        border: 1.4px solid #bdd6ee;
+        border-radius: 6px;
+        background: #fafdff;
+        color: #2061a7;
+        outline: none;
+        transition: border 0.14s;
+      }
+      .main-form input[type="text"]:focus,
+      .main-form input[type="date"]:focus {
+        border-color: var(--nav-blue);
+        background: #f1f6fd;
+      }
+      .main-form button {
+        font-size: 1.02em;
+        padding: 0.44em 1.13em;
+        border-radius: 6px;
+        border: 1.1px solid #bdd6ee;
+        background: #fff;
+        color: var(--nav-blue);
+        font-weight: 700;
+        margin-left: 0.54em;
+        cursor: pointer;
+        transition: background 0.13s;
+      }
+      .main-form button:focus,
+      .main-form button:hover {
+        background: #e5f3ff;
+        border-color: var(--nav-blue);
+      }
       #canvas-outer {
         position: absolute;
         left: 0;
-        top: 62px;
+        top: 120px;
         right: 0;
         bottom: 0;
-        overflow: auto;
+        overflow: hidden; /* Changed from 'auto' to 'hidden' for zoom/pan */
         width: 100vw;
-        height: calc(100vh - 62px);
+        height: calc(100vh - 120px);
         background: var(--canvas-bg);
       }
       #canvas-stack {
         position: relative;
+        transform-origin: 0 0;
+        transition: transform 0.1s ease-out;
       }
       #edgesSVG {
         position: absolute;
         top: 0;
         left: 0;
         z-index: 1;
+        pointer-events: none;
       }
       #nodeLayer {
         position: absolute;
@@ -135,18 +183,18 @@
       }
       .sidebar {
         position: fixed;
-        top: 62px;
+        top: 70px;
         right: 0;
-        width: 300px;
-        height: calc(100vh - 62px);
+        width: 310px;
+        height: calc(100vh - 70px);
         background: var(--sidebar-bg);
         border-left: 2px solid #dde6f1;
         box-shadow: -2px 0 20px -11px #b7bed733;
         z-index: 30;
         min-width: 180px;
         max-width: 320px;
-        padding: 1.3em 1em 1em 1.15em;
-        font-size: 0.98em;
+        padding: 1.13em 0.9em 0.9em 1.13em;
+        font-size: 0.97em;
         overflow-y: auto;
         display: none;
         flex-direction: column;
@@ -156,8 +204,8 @@
       }
       .close-sidebar {
         position: absolute;
-        top: 0.5em;
-        right: 0.7em;
+        top: 0.41em;
+        right: 0.65em;
         background: none;
         border: none;
         font-size: 1.7em;
@@ -172,17 +220,17 @@
       }
       .side-h2 {
         font-weight: 700;
-        margin: 0 0 0.4em;
+        margin: 0 0 0.24em;
       }
       .side-kv {
         display: flex;
         justify-content: space-between;
         border-bottom: 1px dashed #e3e3e3;
-        font-size: 0.8em;
-        padding: 0.17em 0.22em;
+        font-size: 0.93em;
+        padding: 0.15em 0.22em;
       }
       .side-k {
-        color: #2866ac;
+        color: #5b6c8c;
         font-weight: 500;
       }
       .side-v {
@@ -190,17 +238,17 @@
         color: #314;
       }
       .side-actions {
-        margin-top: 0.8em;
+        margin-top: 0.7em;
         display: flex;
         gap: 0.52em;
       }
       .side-actions button {
         flex: 1;
-        padding: 0.34em 0;
+        padding: 0.3em 0;
         border-radius: 7px;
         border: 1.1px solid #bdd6ee;
         font-weight: 600;
-        font-size: 0.96em;
+        font-size: 0.95em;
         background: #f8fafc;
         color: #2061a7;
         cursor: pointer;
@@ -209,97 +257,255 @@
       .side-actions button:hover {
         background: #eaf2fb;
       }
+
+      /* Improved Node Styling (Same Size) */
       .nodebox {
         position: absolute;
-        min-width: 135px;
-        max-width: 200px;
-        min-height: 45px;
+        width: 140px;
+        min-height: 60px;
         background: var(--node-bg);
-        border-radius: 10px;
-        border: 2px solid var(--node-border);
-        border-left: 6px solid transparent;
+        border-radius: 8px;
+        border: 1px solid var(--node-border);
+        border-left: 4px solid transparent;
         font-size: 0.8rem;
-        font-weight: 600;
+        font-weight: 500;
         color: #1f2937;
-        box-shadow: var(--node-shadow, 0 2px 14px -9px #b4cae199);
-        padding: 0.52em 0.7em 0.5em 0.8em;
+        box-shadow: 0 2px 8px -4px rgba(180, 202, 225, 0.25);
+        padding: 0;
         cursor: pointer;
         user-select: none;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
         outline: none;
         opacity: 1;
         pointer-events: auto;
         transition: box-shadow 0.13s, border 0.13s, background 0.12s,
-          opacity 0.22s, transform 0.25s cubic-bezier(0.53, 1.24, 0.52, 1);
+          opacity 0.22s, transform 0.25s cubic-bezier(0.52, 1.04, 0.56, 1.11);
+        z-index: 5;
+        overflow: hidden;
       }
+
       .nodebox.major {
-        border-left: 6px solid #e85663;
-        border-color: #e85663;
-        background: #fff8f7;
-        color: #bb182e;
+        border-left: 4px solid var(--fund-red);
       }
+
       .nodebox.selected,
       .nodebox:focus-visible {
         border-color: #1662ac;
-        background: #e8f3fc;
-        outline: 2px solid #1662ac;
+        background: #f0f7fe;
+        outline: none;
+        box-shadow: 0 2px 12px -4px rgba(22, 98, 172, 0.3);
       }
+
       .nodebox:hover {
         border-color: #1662ac;
-        background: #f2f7fc;
-        z-index: 3;
-        box-shadow: 0 4px 22px -10px #6fa4cf17;
+        background: #f5f9ff;
+        z-index: 10;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px -2px rgba(22, 98, 172, 0.15);
       }
+
       .nodebox.anim-hide {
         opacity: 0;
-        transform: translateY(18px);
+        transform: translateY(12px);
         pointer-events: none;
       }
+
       .nodebox.anim-show {
         opacity: 1;
         transform: translateY(0);
       }
+
       .node-header {
-        font-weight: 700;
-        margin-bottom: 0.13em;
+        padding: 6px 8px;
+        border-bottom: 1px solid #edf1f7;
+        font-weight: 600;
+        color: #233357;
+        font-size: 0.85rem;
         display: flex;
         align-items: center;
-        gap: 0.5em;
+        justify-content: space-between;
       }
+
+      .node-header-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+      }
+
       .toggle-arrow {
-        font-size: 0.97em;
+        font-size: 0.8em;
         color: #1662ac;
-        font-weight: 700;
-        margin-right: 0.16em;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         transition: transform 0.16s;
-        display: inline-block;
       }
-      .cusip-label {
+
+      .nodebox.expanded .toggle-arrow {
+        transform: rotate(90deg);
+      }
+
+      .node-content {
+        padding: 6px 8px;
+      }
+
+      .node-meta {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 6px;
+      }
+
+      .node-meta-item {
+        font-size: 0.75rem;
         color: #497bb0;
-        font-size: 0.82em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .node-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2px;
+        font-size: 0.75rem;
+      }
+
+      .metric {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2px 0;
+      }
+
+      .metric-label {
+        color: #5b6c8c;
         font-weight: 500;
-        margin: 0.09em 0 0.35em 0;
       }
-      .node-body {
-        font-size: 0.92em;
-        color: #3c576c;
-      }
-      .node-pill {
-        display: inline-block;
-        font-size: 0.79em;
-        padding: 0.11em 0.46em;
-        border-radius: 0.94em;
+
+      .metric-value {
         font-weight: 600;
+        color: #233357;
       }
+
+      .node-badges {
+        margin-top: 6px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      .node-pill {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.7rem;
+        padding: 1px 6px;
+        border-radius: 10px;
+        font-weight: 600;
+        height: 18px;
+      }
+
       .node-pill.major {
-        background: #ffe6e4;
-        color: #e85663;
+        background: rgba(232, 86, 99, 0.1);
+        color: var(--fund-red);
       }
+
       .node-pill.bench {
-        background: #e6fbe8;
-        color: #219150;
+        background: rgba(33, 145, 80, 0.1);
+        color: var(--positive);
+      }
+
+      .positive {
+        color: var(--positive);
+      }
+
+      .negative {
+        color: var(--negative);
+      }
+
+      /* Add these to fix edge rendering */
+      svg path {
+        pointer-events: none;
+      }
+      svg circle {
+        pointer-events: none;
+      }
+
+      /* Zoom Controls */
+      .zoom-controls {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        z-index: 20;
+        background: white;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .zoom-buttons {
+        display: flex;
+        gap: 5px;
+      }
+
+      .zoom-btn {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        background: var(--nav-bg);
+        border: 1px solid var(--node-border);
+        color: var(--nav-blue);
+        font-weight: bold;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .zoom-btn:hover {
+        background: #d9e6f7;
+      }
+
+      .zoom-reset {
+        padding: 5px;
+        text-align: center;
+        border-radius: 5px;
+        background: #fff;
+        border: 1px solid var(--node-border);
+        color: var(--nav-blue);
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.8rem;
+        margin-top: 5px;
+      }
+
+      .zoom-reset:hover {
+        background: #f0f5fa;
+      }
+
+      .zoom-info {
+        text-align: center;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 5px;
+      }
+
+      /* Cursor styles for panning */
+      .panning {
+        cursor: grabbing !important;
+      }
+
+      #canvas-outer.pan-mode {
+        cursor: grab;
       }
     </style>
   </head>
@@ -308,7 +514,7 @@
       <div class="nav-left">
         <img class="nav-logoimg" src="images/logo.png" alt="FUNDMAP Logo" />
         <img class="nav-logotextimg" src="images/logotext.png" alt="FUNDMAP" />
-        <!-- <span class="nav-title-company">FUNDMAP</span> -->
+        <span class="nav-title-company">FUNDMAP</span>
       </div>
       <div class="nav-controls">
         <label class="nav-upload-btn">
@@ -317,25 +523,59 @@
         </label>
       </div>
     </nav>
-    <div id="canvas-outer">
+    <form
+      class="main-form"
+      id="inputForm"
+      autocomplete="off"
+      onsubmit="return false;">
+      <label for="cusipBox">CUSIP</label>
+      <input type="text" id="cusipBox" required placeholder="e.g. BRT83LXX4" />
+      <label for="clientBox">Client</label>
+      <input type="text" id="clientBox" required placeholder="e.g. ACME" />
+      <label for="dateBox">Date</label>
+      <input type="date" id="dateBox" required />
+      <button id="visualizeBtn" type="button">Visualize</button>
+    </form>
+    <div id="canvas-outer" class="pan-mode">
       <div id="canvas-stack">
         <svg id="edgesSVG"></svg>
         <div id="nodeLayer"></div>
       </div>
+      <div class="zoom-controls">
+        <div class="zoom-buttons">
+          <button class="zoom-btn" id="zoom-in">+</button>
+          <button class="zoom-btn" id="zoom-out">-</button>
+        </div>
+        <button class="zoom-reset" id="zoom-reset">Reset View</button>
+        <div class="zoom-info"><span id="zoom-level">100%</span></div>
+      </div>
       <div class="sidebar" id="sidePanel"></div>
     </div>
     <script>
-      const NODE_W = 172,
-        NODE_H = 67,
-        H_GAP = 62,
-        V_GAP = 48,
-        ANIM_MS = 280;
+      const NODE_W = 140, // Keeping same width
+        NODE_H = 60, // Keeping same height
+        H_GAP = 60, // Horizontal gap between nodes
+        V_GAP = 25, // Vertical gap between nodes
+        ANIM_MS = 200; // Animation duration
       let collapseState = {},
         treeData = null,
-        animating = false;
+        animating = false,
+        lastSidebarId = null;
+
+      // Zoom & Pan variables
+      let zoomLevel = 1;
+      let panOffsetX = 0;
+      let panOffsetY = 0;
+      let isPanning = false;
+      let startPanX = 0;
+      let startPanY = 0;
+      let lastMouseX = 0;
+      let lastMouseY = 0;
+
       document.getElementById("jsonFile").onclick = function () {
         this.value = null;
       };
+
       document
         .getElementById("jsonFile")
         .addEventListener("change", function (e) {
@@ -346,6 +586,10 @@
             try {
               collapseState = {};
               treeData = JSON.parse(evt.target.result);
+              lastSidebarId = null;
+
+              // Reset zoom and pan when loading new data
+              resetView();
               renderTree();
             } catch (e) {
               alert("Invalid JSON: " + e.message);
@@ -354,93 +598,184 @@
           reader.readAsText(file);
         });
 
-      function layoutTreeRightAligned(
-        node,
-        x = 0,
-        rowAlloc = { val: 0 },
-        parentId = "",
-        depth = 0
-      ) {
+      document.getElementById("visualizeBtn").onclick = function () {
+        const cusip = document.getElementById("cusipBox").value.trim();
+        if (!cusip || !treeData) return;
+        const node = findNodeByCUSIP(treeData, cusip);
+        if (!node) {
+          alert("CUSIP not found in tree.");
+          return;
+        }
+        collapseState = {};
+        expandPathToNode(treeData, cusip);
+        lastSidebarId = null;
+
+        // Reset zoom and pan when visualizing new node
+        resetView();
+        renderTree(node);
+      };
+
+      function findNodeByCUSIP(node, cusip) {
+        if (node.name === cusip) return node;
+        if (node.children)
+          for (const c of node.children) {
+            let found = findNodeByCUSIP(c, cusip);
+            if (found) return found;
+          }
+        return null;
+      }
+
+      function expandPathToNode(root, cusip, parentId = "") {
+        if (root.name === cusip) return true;
+        if (!root.children) return false;
+        for (const c of root.children) {
+          if (
+            expandPathToNode(
+              c,
+              cusip,
+              (parentId ? parentId + "|" : "") + root.name
+            )
+          ) {
+            collapseState[(parentId ? parentId + "|" : "") + root.name] = false;
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // Improved layout function that expands nodes horizontally to the right
+      function layoutTree(node, x = 40, y = 40, parentId = "") {
         const id = (parentId ? parentId + "|" : "") + node.name;
         const collapsed = collapseState[id];
         const children = !collapsed && node.children ? node.children : [];
+
         let nodes = [],
           edges = [];
-        let myRow = rowAlloc.val++;
-        let thisY = myRow * (NODE_H + V_GAP) + 30;
-        nodes.push({ id, node, x, y: thisY, major: !!node.major_path, depth });
+
+        // Add this node
+        nodes.push({ id, node, x, y, major: !!node.major_path });
+
         if (children.length) {
-          let localRowAlloc = { val: myRow };
-          for (let i = 0; i < children.length; ++i) {
-            let useRowAlloc = i === 0 ? localRowAlloc : rowAlloc;
-            let { nodes: childNodes, edges: childEdges } =
-              layoutTreeRightAligned(
-                children[i],
-                x + NODE_W + H_GAP,
-                useRowAlloc,
-                id,
-                depth + 1
-              );
-            nodes = nodes.concat(childNodes);
-            edges = edges.concat(childEdges);
+          // Next column position
+          const nextX = x + NODE_W + H_GAP;
+          let currentY = y;
+
+          for (let i = 0; i < children.length; i++) {
+            // Layout this child branch
+            const { nodes: childNodes, edges: childEdges } = layoutTree(
+              children[i],
+              nextX,
+              currentY,
+              id
+            );
+
+            // Add edge from parent to this child
             edges.push({
-              from: { x: x + NODE_W, y: thisY + NODE_H / 2 },
-              to: { x: childNodes[0].x, y: childNodes[0].y + NODE_H / 2 },
+              from: { x: x + NODE_W, y: y + NODE_H / 2 },
+              to: { x: nextX, y: currentY + NODE_H / 2 },
               major: !!children[i].major_path,
             });
-            if (i === 0)
-              rowAlloc.val = Math.max(rowAlloc.val, localRowAlloc.val);
+
+            // Add child nodes and edges to result
+            nodes = nodes.concat(childNodes);
+            edges = edges.concat(childEdges);
+
+            // Update Y position for next child
+            if (childNodes.length > 0) {
+              // Find the lowest node in this branch
+              const lowestY = Math.max(...childNodes.map((n) => n.y)) + NODE_H;
+              currentY = lowestY + V_GAP;
+            } else {
+              currentY += NODE_H + V_GAP;
+            }
           }
         }
+
         return { nodes, edges };
       }
+
       function createNodeBox(pos, openDetailSidebar) {
         const node = pos.node;
         const box = document.createElement("div");
-        box.className = "nodebox" + (pos.major ? " major" : "");
+        box.className =
+          "nodebox" +
+          (pos.major ? " major" : "") +
+          (collapseState[pos.id] === false ? " expanded" : "");
         box.style.left = pos.x + "px";
         box.style.top = pos.y + "px";
         box.style.width = NODE_W + "px";
-        let arrow =
+
+        // Handle null values - display 0 instead
+        const oadToday = node.oad_today !== null ? node.oad_today : 0;
+        const oadYesterday =
+          node.oad_yesterday !== null ? node.oad_yesterday : 0;
+        const oadChangePercentage =
+          node.oad_change_pct !== null ? node.oad_change_pct : 0;
+
+        // Format change with appropriate styling
+        const changeClass = oadChangePercentage >= 0 ? "positive" : "negative";
+        const changeSign = oadChangePercentage >= 0 ? "+" : "";
+        const changeString = `${changeSign}${oadChangePercentage}%`;
+
+        // Create arrow only if node has children
+        const arrow =
           node.children && node.children.length
-            ? `<span class="toggle-arrow">&#9654;</span>`
+            ? `<div class="toggle-arrow">&#9654;</div>`
             : "";
-        box.innerHTML = `<div class="node-header">${arrow}${node.name}</div>
-        <div class="cusip-label">${node.sec_group || ""}${
-          node.sec_type ? " / " + node.sec_type : ""
-        }${
-          node.major_path
-            ? `<span class="node-pill major" style="margin-left:.8em;"></span>`
-            : ""
-        }${
-          node.is_benchmark
-            ? ` <span class="node-pill bench">Benchmark</span>`
-            : ""
-        }</div>
-        <div class="node-body">
-          <div class="node-key-value"><span class="node-key">OAD tdy:</span><span class="node-val">${
-            node.oad_today ?? "-"
-          }</span>
-          <span class="node-key">Yday:</span><span class="node-val">${
-            node.oad_yesterday ?? "-"
-          }</span>
-          <span class="node-key">Δ%:</span><span class="node-val">${
-            typeof node.oad_change_pct !== "undefined"
-              ? (node.oad_change_pct > 0 ? "+" : "") + node.oad_change_pct + "%"
-              : "-"
-          }</span>
+
+        // Improved internal layout while keeping the same node size
+        box.innerHTML = `
+          <div class="node-header">
+            <div class="node-header-name">${node.name}</div>
+            ${arrow}
           </div>
-        </div>`;
+          <div class="node-content">
+            <div class="node-meta">
+              <span class="node-meta-item">${node.sec_group || "-"}${
+          node.sec_type ? " / " + node.sec_type : ""
+        }</span>
+            </div>
+            <div class="node-metrics">
+              <div class="metric">
+                <span class="metric-label">Today:</span>
+                <span class="metric-value">${oadToday}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Yday:</span>
+                <span class="metric-value">${oadYesterday}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Δ%:</span>
+                <span class="metric-value ${changeClass}">${changeString}</span>
+              </div>
+            </div>
+            <div class="node-badges">
+              ${
+                node.major_path
+                  ? `<span class="node-pill major">Major</span>`
+                  : ""
+              }
+              ${
+                node.is_benchmark
+                  ? `<span class="node-pill bench">Benchmark</span>`
+                  : ""
+              }
+            </div>
+          </div>
+        `;
+
         box.tabIndex = 0;
         box.onclick = function (e) {
-          if (
-            node.children &&
-            node.children.length &&
-            e.target &&
-            e.target.classList &&
-            e.target.classList.contains("toggle-arrow")
-          ) {
+          // Only respond to clicks if we're not in the middle of panning
+          if (isPanning) {
+            e.stopPropagation();
+            return;
+          }
+
+          if (node.children && node.children.length) {
             collapseState[pos.id] = !collapseState[pos.id];
+            box.classList.toggle("expanded");
+
             animating = true;
             const affectedIds = findNodeBranchIds(node);
             affectedIds.forEach((id) => {
@@ -451,23 +786,27 @@
                 el.classList.add("anim-hide");
               }
             });
+
             setTimeout(() => {
               renderTree();
               affectedIds.forEach((id) => {
                 const el = document.querySelector(`[data-node-id="${id}"]`);
                 if (el) el.classList.add("anim-show");
               });
-              setTimeout(() => (animating = false), ANIM_MS + 10);
+              animating = false;
             }, ANIM_MS);
-          } else if (!animating) {
-            openDetailSidebar(pos);
           }
+
+          lastSidebarId = pos.id;
+          openDetailSidebar(pos);
           e.stopPropagation();
         };
+
         box.setAttribute("data-node-id", pos.id);
         box.classList.add("anim-show");
         return box;
       }
+
       function findNodeBranchIds(node) {
         let out = [node.name];
         if (node.children)
@@ -475,9 +814,20 @@
             out = out.concat(findNodeBranchIds(ch));
         return out;
       }
+
       function renderDetailSidebar(pos) {
         const node = pos.node;
         const sidebar = document.getElementById("sidePanel");
+
+        // Handle null values for sidebar display
+        const oadToday = node.oad_today !== null ? node.oad_today : 0;
+        const oadYesterday =
+          node.oad_yesterday !== null ? node.oad_yesterday : 0;
+        const oadChangePercentage =
+          node.oad_change_pct !== null ? node.oad_change_pct : 0;
+
+        const changeSign = oadChangePercentage >= 0 ? "+" : "";
+
         let html = `<button class="close-sidebar" onclick="document.getElementById('sidePanel').classList.remove('open')">&times;</button>`;
         html += `<h2 class="side-h2">${node.name}</h2>`;
         html += `<div class="side-kv"><span class="side-k">CUSIP</span><span class="side-v">${node.name}</span></div>`;
@@ -489,17 +839,9 @@
         html += `<div class="side-kv"><span class="side-k">SEC TYPE</span><span class="side-v">${
           node.sec_type || "-"
         }</span></div>`;
-        html += `<div class="side-kv"><span class="side-k">OAD (Today)</span><span class="side-v">${
-          node.oad_today ?? "-"
-        }</span></div>`;
-        html += `<div class="side-kv"><span class="side-k">OAD (Yday)</span><span class="side-v">${
-          node.oad_yesterday ?? "-"
-        }</span></div>`;
-        html += `<div class="side-kv"><span class="side-k">OAD Δ %</span><span class="side-v">${
-          typeof node.oad_change_pct !== "undefined"
-            ? (node.oad_change_pct > 0 ? "+" : "") + node.oad_change_pct + "%"
-            : "-"
-        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD (Today)</span><span class="side-v">${oadToday}</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD (Yday)</span><span class="side-v">${oadYesterday}</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD Δ %</span><span class="side-v">${changeSign}${oadChangePercentage}%</span></div>`;
         html += `<div class="side-kv"><span class="side-k">Benchmark</span><span class="side-v">${
           node.is_benchmark ? "✔️" : "—"
         }</span></div>`;
@@ -509,8 +851,8 @@
         if (node.children && node.children.length)
           html += `<div class="side-kv"><span class="side-k">Children</span><span class="side-v">${node.children.length}</span></div>`;
         html += `<div class="side-actions">
-        <button onclick="expandBranch('${pos.id}')">Expand Branch</button>
-        <button onclick="collapseBranch('${pos.id}')">Collapse Branch</button>
+        <button onclick="expandBranch('${pos.id}');event.stopPropagation();">Expand Branch</button>
+        <button onclick="collapseBranch('${pos.id}');event.stopPropagation();">Collapse Branch</button>
       </div>`;
         sidebar.innerHTML = html;
         sidebar.classList.add("open");
@@ -518,52 +860,205 @@
         window.expandBranch = function (id) {
           collapseState[id] = false;
           renderTree();
+          openDetailsIfExists();
         };
         window.collapseBranch = function (id) {
           collapseState[id] = true;
           renderTree();
+          openDetailsIfExists();
         };
       }
-      function renderTree() {
+
+      function openDetailsIfExists() {
+        if (lastSidebarId) {
+          const nodes = Array.from(document.querySelectorAll(".nodebox"));
+          for (const box of nodes) {
+            if (box.getAttribute("data-node-id") === lastSidebarId) {
+              const pos = {
+                node: getNodeById(treeData, lastSidebarId),
+                id: lastSidebarId,
+              };
+              renderDetailSidebar(pos);
+              break;
+            }
+          }
+        }
+      }
+
+      function getNodeById(node, id, parentId = "") {
+        const thisID = (parentId ? parentId + "|" : "") + node.name;
+        if (thisID === id) return node;
+        if (node.children)
+          for (const c of node.children) {
+            let found = getNodeById(c, id, thisID);
+            if (found) return found;
+          }
+        return null;
+      }
+
+      function renderTree(rootOverride) {
         const cstack = document.getElementById("canvas-stack"),
           cinner = document.getElementById("nodeLayer"),
           svg = document.getElementById("edgesSVG"),
           sidebar = document.getElementById("sidePanel");
         cinner.innerHTML = "";
         svg.innerHTML = "";
-        sidebar.classList.remove("open");
-        if (!treeData) return;
-        const { nodes, edges } = layoutTreeRightAligned(treeData, 40, {
-          val: 0,
-        });
+        const root = rootOverride || treeData;
+        if (!root) return;
+
+        // Use improved layout function
+        const { nodes, edges } = layoutTree(root);
+
         let allX = nodes.map((n) => n.x),
           allY = nodes.map((n) => n.y);
-        let cW = Math.max(...allX, 0) + NODE_W + 200,
-          cH = Math.max(...allY, 0) + NODE_H + 180;
+        let cW = Math.max(...allX, 0) + NODE_W + 180,
+          cH = Math.max(...allY, 0) + NODE_H + 130;
         cstack.style.width = cW + "px";
         cstack.style.height = cH + "px";
         cinner.style.width = cW + "px";
         cinner.style.height = cH + "px";
         svg.setAttribute("width", cW);
         svg.setAttribute("height", cH);
+
+        // Apply zoom and pan transformations
+        updateTransform();
+
+        // Draw edges with right-angle connections
         edges.forEach((e) => {
-          let mx = (e.from.x + e.to.x) / 2;
-          svg.innerHTML += `<path d="M${e.from.x},${e.from.y} C${mx},${
-            e.from.y
-          } ${mx},${e.to.y} ${e.to.x},${e.to.y}" stroke="${
-            e.major ? "var(--edge-major)" : "var(--edge-main)"
-          }" stroke-width="2.1" fill="none"/>`;
+          // Draw edge with better right angles
+          svg.innerHTML += `<path 
+            d="M${e.from.x},${e.from.y} 
+               H${e.from.x + (e.to.x - e.from.x) / 2} 
+               V${e.to.y} 
+               H${e.to.x}" 
+            stroke="${e.major ? "var(--edge-major)" : "var(--edge-main)"}" 
+            stroke-width="2.1"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round" />`;
         });
+
         nodes.forEach((pos) => {
           let el = createNodeBox(pos, renderDetailSidebar);
           el.classList.add("anim-show");
           cinner.appendChild(el);
         });
-        document.body.onclick = () => sidebar.classList.remove("open");
+        openDetailsIfExists();
       }
+
+      // Zoom and Pan Functions
+      function updateTransform() {
+        const canvas = document.getElementById("canvas-stack");
+        canvas.style.transform = `translate(${panOffsetX}px, ${panOffsetY}px) scale(${zoomLevel})`;
+        document.getElementById("zoom-level").textContent =
+          Math.round(zoomLevel * 100) + "%";
+      }
+
+      function resetView() {
+        zoomLevel = 1;
+        panOffsetX = 0;
+        panOffsetY = 0;
+        updateTransform();
+      }
+
+      function zoomIn() {
+        if (zoomLevel < 3) {
+          // Limit max zoom
+          zoomLevel = Math.min(3, zoomLevel + 0.1);
+          updateTransform();
+        }
+      }
+
+      function zoomOut() {
+        if (zoomLevel > 0.2) {
+          // Limit min zoom
+          zoomLevel = Math.max(0.2, zoomLevel - 0.1);
+          updateTransform();
+        }
+      }
+
+      // Set up zoom and pan handlers
+      document.getElementById("zoom-in").addEventListener("click", zoomIn);
+      document.getElementById("zoom-out").addEventListener("click", zoomOut);
+      document
+        .getElementById("zoom-reset")
+        .addEventListener("click", resetView);
+
+      // Mouse wheel for zooming
+      document
+        .getElementById("canvas-outer")
+        .addEventListener("wheel", function (e) {
+          e.preventDefault();
+          if (e.deltaY < 0) {
+            zoomIn();
+          } else {
+            zoomOut();
+          }
+        });
+
+      // Pan functionality
+      const canvasOuter = document.getElementById("canvas-outer");
+
+      canvasOuter.addEventListener("mousedown", function (e) {
+        // Only start panning on left mouse button
+        if (e.button === 0) {
+          isPanning = true;
+          startPanX = e.clientX - panOffsetX;
+          startPanY = e.clientY - panOffsetY;
+          lastMouseX = e.clientX;
+          lastMouseY = e.clientY;
+          document.body.classList.add("panning");
+        }
+      });
+
+      document.addEventListener("mousemove", function (e) {
+        if (isPanning) {
+          panOffsetX = e.clientX - startPanX;
+          panOffsetY = e.clientY - startPanY;
+          updateTransform();
+        }
+      });
+
+      document.addEventListener("mouseup", function () {
+        isPanning = false;
+        document.body.classList.remove("panning");
+      });
+
+      document.addEventListener("mouseleave", function () {
+        isPanning = false;
+        document.body.classList.remove("panning");
+      });
+
+      // Handle keyboard shortcuts
+      document.addEventListener("keydown", function (e) {
+        // Zoom with + and -
+        if (e.key === "+" || e.key === "=") {
+          zoomIn();
+        } else if (e.key === "-" || e.key === "_") {
+          zoomOut();
+        }
+        // Reset with 0
+        else if (e.key === "0") {
+          resetView();
+        }
+        // Pan with arrow keys
+        else if (e.key === "ArrowUp") {
+          panOffsetY += 50;
+          updateTransform();
+        } else if (e.key === "ArrowDown") {
+          panOffsetY -= 50;
+          updateTransform();
+        } else if (e.key === "ArrowLeft") {
+          panOffsetX += 50;
+          updateTransform();
+        } else if (e.key === "ArrowRight") {
+          panOffsetX -= 50;
+          updateTransform();
+        }
+      });
+
       document.getElementById("sidePanel").onclick = (e) => e.stopPropagation();
-      document.body.onclick = () =>
-        document.getElementById("sidePanel").classList.remove("open");
+      document.body.onclick = () => {}; // Disable sidebar autoclose
     </script>
   </body>
 </html>
