@@ -18,7 +18,7 @@
       "oad_yesterday": 4.10,
       "oad_change_pct": 1.22,
       "is_benchmark": true,
-      "major_path": true,
+      "major_path": true, 
       "children": [
         {
           "name": "TECHSTOCK500",
@@ -29,7 +29,7 @@
           "oad_yesterday": 5.30,
           "oad_change_pct": -0.94,
           "is_benchmark": false,
-          "major_path": true,
+          "major_path": true, 
           "children": [
             {
               "name": "AAPL123456",
@@ -40,7 +40,7 @@
               "oad_yesterday": 6.05,
               "oad_change_pct": 0.83,
               "is_benchmark": false,
-              "major_path": false,
+              "major_path": true,  
               "children": []
             },
             {
@@ -51,18 +51,6 @@
               "oad_today": 5.95,
               "oad_yesterday": 6.00,
               "oad_change_pct": -0.83,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            },
-            {
-              "name": "GOOG345678",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 6.25,
-              "oad_yesterday": 6.30,
-              "oad_change_pct": -0.79,
               "is_benchmark": false,
               "major_path": false,
               "children": []
@@ -78,33 +66,8 @@
           "oad_yesterday": 7.20,
           "oad_change_pct": -0.69,
           "is_benchmark": false,
-          "major_path": true,
-          "children": [
-            {
-              "name": "JPMBOND001",
-              "depth": 3,
-              "sec_group": "BOND",
-              "sec_type": "CORP",
-              "oad_today": 8.10,
-              "oad_yesterday": 8.15,
-              "oad_change_pct": -0.61,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            },
-            {
-              "name": "GSBOND002",
-              "depth": 3,
-              "sec_group": "BOND",
-              "sec_type": "CORP",
-              "oad_today": 7.95,
-              "oad_yesterday": 8.00,
-              "oad_change_pct": -0.63,
-              "is_benchmark": false,
-              "major_path": false,
-              "children": []
-            }
-          ]
+          "major_path": false,
+          "children": []
         }
       ]
     },
@@ -117,7 +80,7 @@
       "oad_yesterday": 2.80,
       "oad_change_pct": 1.79,
       "is_benchmark": false,
-      "major_path": true,
+      "major_path": false,
       "children": [
         {
           "name": "GOVTBOND400",
@@ -128,7 +91,7 @@
           "oad_yesterday": 4.00,
           "oad_change_pct": -1.25,
           "is_benchmark": true,
-          "major_path": true,
+          "major_path": true, 
           "children": [
             {
               "name": "USTREASURY10",
@@ -139,19 +102,7 @@
               "oad_yesterday": 4.80,
               "oad_change_pct": -1.04,
               "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            },
-            {
-              "name": "USTREASURY20",
-              "depth": 3,
-              "sec_group": "BOND",
-              "sec_type": "GOVT",
-              "oad_today": 5.25,
-              "oad_yesterday": 5.30,
-              "oad_change_pct": -0.94,
-              "is_benchmark": false,
-              "major_path": false,
+              "major_path": true, 
               "children": []
             },
             {
@@ -163,56 +114,7 @@
               "oad_yesterday": 6.10,
               "oad_change_pct": -0.82,
               "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            }
-          ]
-        },
-        {
-          "name": "MUNIBOND500",
-          "depth": 2,
-          "sec_group": "BOND",
-          "sec_type": "MUNI",
-          "oad_today": 5.15,
-          "oad_yesterday": 5.20,
-          "oad_change_pct": -0.96,
-          "is_benchmark": false,
-          "major_path": true,
-          "children": [
-            {
-              "name": "NYCMUNI001",
-              "depth": 3,
-              "sec_group": "BOND",
-              "sec_type": "MUNI",
-              "oad_today": 6.10,
-              "oad_yesterday": 6.15,
-              "oad_change_pct": -0.81,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            },
-            {
-              "name": "CAMUNI002",
-              "depth": 3,
-              "sec_group": "BOND",
-              "sec_type": "MUNI",
-              "oad_today": 5.95,
-              "oad_yesterday": 6.00,
-              "oad_change_pct": -0.83,
-              "is_benchmark": false,
               "major_path": false,
-              "children": []
-            },
-            {
-              "name": "TXMUNI003",
-              "depth": 3,
-              "sec_group": "BOND",
-              "sec_type": "MUNI",
-              "oad_today": 5.85,
-              "oad_yesterday": 5.90,
-              "oad_change_pct": -0.85,
-              "is_benchmark": false,
-              "major_path": true,
               "children": []
             }
           ]
@@ -228,7 +130,7 @@
       "oad_yesterday": 3.40,
       "oad_change_pct": 1.47,
       "is_benchmark": false,
-      "major_path": true,
+      "major_path": false,
       "children": [
         {
           "name": "EMERGING700",
@@ -239,7 +141,7 @@
           "oad_yesterday": 6.80,
           "oad_change_pct": -0.74,
           "is_benchmark": false,
-          "major_path": true,
+          "major_path": true,  
           "children": [
             {
               "name": "CHINA001",
@@ -250,80 +152,7 @@
               "oad_yesterday": 7.30,
               "oad_change_pct": -0.68,
               "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            },
-            {
-              "name": "INDIA002",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 7.15,
-              "oad_yesterday": 7.20,
-              "oad_change_pct": -0.69,
-              "is_benchmark": false,
-              "major_path": false,
-              "children": []
-            },
-            {
-              "name": "BRAZIL003",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 7.35,
-              "oad_yesterday": 7.40,
-              "oad_change_pct": -0.68,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            }
-          ]
-        },
-        {
-          "name": "DEVELOPED800",
-          "depth": 2,
-          "sec_group": "EQUITY",
-          "sec_type": "STOCK",
-          "oad_today": 5.25,
-          "oad_yesterday": 5.30,
-          "oad_change_pct": -0.94,
-          "is_benchmark": false,
-          "major_path": true,
-          "children": [
-            {
-              "name": "JAPAN001",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 5.75,
-              "oad_yesterday": 5.80,
-              "oad_change_pct": -0.86,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            },
-            {
-              "name": "GERMANY002",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 5.65,
-              "oad_yesterday": 5.70,
-              "oad_change_pct": -0.88,
-              "is_benchmark": false,
-              "major_path": false,
-              "children": []
-            },
-            {
-              "name": "UK003",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 5.55,
-              "oad_yesterday": 5.60,
-              "oad_change_pct": -0.89,
-              "is_benchmark": false,
-              "major_path": true,
+              "major_path": true, 
               "children": []
             }
           ]
@@ -339,7 +168,7 @@
       "oad_yesterday": 4.20,
       "oad_change_pct": 1.19,
       "is_benchmark": false,
-      "major_path": true,
+      "major_path": false,
       "children": [
         {
           "name": "REIT1000",
@@ -350,7 +179,7 @@
           "oad_yesterday": 6.00,
           "oad_change_pct": -0.83,
           "is_benchmark": false,
-          "major_path": true,
+          "major_path": true, 
           "children": [
             {
               "name": "OFFICEREIT1",
@@ -361,191 +190,7 @@
               "oad_yesterday": 6.50,
               "oad_change_pct": -0.77,
               "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            },
-            {
-              "name": "RETAILREIT2",
-              "depth": 3,
-              "sec_group": "REAL_ESTATE",
-              "sec_type": "REIT",
-              "oad_today": 6.35,
-              "oad_yesterday": 6.40,
-              "oad_change_pct": -0.78,
-              "is_benchmark": false,
-              "major_path": false,
-              "children": []
-            },
-            {
-              "name": "INDUSTREIT3",
-              "depth": 3,
-              "sec_group": "REAL_ESTATE",
-              "sec_type": "REIT",
-              "oad_today": 6.25,
-              "oad_yesterday": 6.30,
-              "oad_change_pct": -0.79,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            }
-          ]
-        },
-        {
-          "name": "COMMODITY1100",
-          "depth": 2,
-          "sec_group": "COMMODITY",
-          "sec_type": "FUTURES",
-          "oad_today": 7.25,
-          "oad_yesterday": 7.30,
-          "oad_change_pct": -0.68,
-          "is_benchmark": false,
-          "major_path": true,
-          "children": [
-            {
-              "name": "GOLD001",
-              "depth": 3,
-              "sec_group": "COMMODITY",
-              "sec_type": "FUTURES",
-              "oad_today": 7.75,
-              "oad_yesterday": 7.80,
-              "oad_change_pct": -0.64,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            },
-            {
-              "name": "OIL002",
-              "depth": 3,
-              "sec_group": "COMMODITY",
-              "sec_type": "FUTURES",
-              "oad_today": 7.65,
-              "oad_yesterday": 7.70,
-              "oad_change_pct": -0.65,
-              "is_benchmark": false,
-              "major_path": false,
-              "children": []
-            },
-            {
-              "name": "AGRI003",
-              "depth": 3,
-              "sec_group": "COMMODITY",
-              "sec_type": "FUTURES",
-              "oad_today": 7.55,
-              "oad_yesterday": 7.60,
-              "oad_change_pct": -0.66,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "SECTORFUND1200",
-      "depth": 1,
-      "sec_group": "FUND",
-      "sec_type": "OPEN_END",
-      "oad_today": 3.75,
-      "oad_yesterday": 3.70,
-      "oad_change_pct": 1.35,
-      "is_benchmark": false,
-      "major_path": true,
-      "children": [
-        {
-          "name": "TECH1300",
-          "depth": 2,
-          "sec_group": "EQUITY",
-          "sec_type": "STOCK",
-          "oad_today": 5.45,
-          "oad_yesterday": 5.50,
-          "oad_change_pct": -0.91,
-          "is_benchmark": false,
-          "major_path": true,
-          "children": [
-            {
-              "name": "SOFTWARE001",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 5.95,
-              "oad_yesterday": 6.00,
-              "oad_change_pct": -0.83,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            },
-            {
-              "name": "HARDWARE002",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 5.85,
-              "oad_yesterday": 5.90,
-              "oad_change_pct": -0.85,
-              "is_benchmark": false,
-              "major_path": false,
-              "children": []
-            },
-            {
-              "name": "SEMI003",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 5.75,
-              "oad_yesterday": 5.80,
-              "oad_change_pct": -0.86,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            }
-          ]
-        },
-        {
-          "name": "HEALTH1400",
-          "depth": 2,
-          "sec_group": "EQUITY",
-          "sec_type": "STOCK",
-          "oad_today": 4.95,
-          "oad_yesterday": 5.00,
-          "oad_change_pct": -1.00,
-          "is_benchmark": false,
-          "major_path": true,
-          "children": [
-            {
-              "name": "PHARMA001",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 5.45,
-              "oad_yesterday": 5.50,
-              "oad_change_pct": -0.91,
-              "is_benchmark": false,
-              "major_path": true,
-              "children": []
-            },
-            {
-              "name": "BIOTECH002",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 5.35,
-              "oad_yesterday": 5.40,
-              "oad_change_pct": -0.93,
-              "is_benchmark": false,
-              "major_path": false,
-              "children": []
-            },
-            {
-              "name": "DEVICES003",
-              "depth": 3,
-              "sec_group": "EQUITY",
-              "sec_type": "STOCK",
-              "oad_today": 5.25,
-              "oad_yesterday": 5.30,
-              "oad_change_pct": -0.94,
-              "is_benchmark": false,
-              "major_path": true,
+              "major_path": true, 
               "children": []
             }
           ]

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FUNDMAP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap"
+      rel="stylesheet" />
+    <style>
+      :root {
+        --nav-bg: #eaf1fa;
+        --nav-blue: #1662ac;
+        --fund-red: #e85663;
+        --node-border: #c6d2e6;
+        --edge-main: #5398da;
+        --edge-major: #e85663;
+        --canvas-bg: #f7fafc;
+        --node-bg: #fff;
+        --sidebar-bg: #fbfcfe;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+      }
+      body {
+        background: var(--canvas-bg);
+        color: #233357;
+        font-family: "Inter", Arial, sans-serif;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 64px;
+        z-index: 50;
+        background: var(--nav-bg);
+        color: var(--nav-blue);
+        font-size: 1.13rem;
+        padding: 0 2vw;
+        border-bottom: 1px solid #dde2f4;
+        box-shadow: 0 3px 20px -12px #b1cae745;
+      }
+      .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 1.15em;
+      }
+      .nav-logoimg {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5em;
+        object-fit: contain;
+      }
+      .nav-logotextimg {
+        height: 1.55rem;
+        margin-left: 0.18em;
+        margin-right: 0.7em;
+        object-fit: contain;
+      }
+      .nav-title-company {
+        font-size: 1.04em;
+        margin-left: 0.3em;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: var(--nav-blue);
+      }
+      .nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+      }
+      .nav-upload-btn {
+        background: #fff;
+        color: var(--nav-blue);
+        border: 1.4px solid #bdd6ee;
+        border-radius: 7px;
+        padding: 0.42em 1em;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.97em;
+        transition: background 0.13s, border 0.16s, color 0.13s;
+        margin-left: 0.5em;
+      }
+      .nav-upload-btn:focus,
+      .nav-upload-btn:hover {
+        background: #f7fbfd;
+        border-color: var(--nav-blue);
+      }
+      .nav-upload-btn input[type="file"] {
+        display: none;
+      }
+      .main-form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.7em;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 100vw;
+        z-index: 21;
+        background: rgba(255, 255, 255, 0.96);
+        padding: 0.76em 0 0.76em 0;
+        box-shadow: 0 4px 17px -10px #5fa9e080;
+      }
+      .main-form label {
+        font-weight: 600;
+        color: #365987;
+        font-size: 1.03em;
+        margin-right: 6px;
+      }
+      .main-form input[type="text"],
+      .main-form input[type="date"] {
+        font-size: 1.04em;
+        padding: 0.44em 1em 0.4em 1em;
+        border: 1.4px solid #bdd6ee;
+        border-radius: 6px;
+        background: #fafdff;
+        color: #2061a7;
+        outline: none;
+        transition: border 0.14s;
+      }
+      .main-form input[type="text"]:focus,
+      .main-form input[type="date"]:focus {
+        border-color: var(--nav-blue);
+        background: #f1f6fd;
+      }
+      .main-form button {
+        font-size: 1.02em;
+        padding: 0.44em 1.13em;
+        border-radius: 6px;
+        border: 1.1px solid #bdd6ee;
+        background: #fff;
+        color: var(--nav-blue);
+        font-weight: 700;
+        margin-left: 0.54em;
+        cursor: pointer;
+        transition: background 0.13s;
+      }
+      .main-form button:focus,
+      .main-form button:hover {
+        background: #e5f3ff;
+        border-color: var(--nav-blue);
+      }
+      #canvas-outer {
+        position: absolute;
+        left: 0;
+        top: 120px;
+        right: 0;
+        bottom: 0;
+        overflow: auto;
+        width: 100vw;
+        height: calc(100vh - 120px);
+        background: var(--canvas-bg);
+      }
+      #canvas-stack {
+        position: relative;
+      }
+      #edgesSVG {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+      #nodeLayer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 2;
+      }
+      .sidebar {
+        position: fixed;
+        top: 70px;
+        right: 0;
+        width: 310px;
+        height: calc(100vh - 70px);
+        background: var(--sidebar-bg);
+        border-left: 2px solid #dde6f1;
+        box-shadow: -2px 0 20px -11px #b7bed733;
+        z-index: 30;
+        min-width: 180px;
+        max-width: 320px;
+        padding: 1.13em 0.9em 0.9em 1.13em;
+        font-size: 0.97em;
+        overflow-y: auto;
+        display: none;
+        flex-direction: column;
+      }
+      .sidebar.open {
+        display: flex;
+      }
+      .close-sidebar {
+        position: absolute;
+        top: 0.41em;
+        right: 0.65em;
+        background: none;
+        border: none;
+        font-size: 1.7em;
+        color: #a7aebb;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .close-sidebar:focus,
+      .close-sidebar:hover {
+        color: var(--fund-red);
+        background: #f5e9eb;
+      }
+      .side-h2 {
+        font-weight: 700;
+        margin: 0 0 0.24em;
+      }
+      .side-kv {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px dashed #e3e3e3;
+        font-size: 0.93em;
+        padding: 0.15em 0.22em;
+      }
+      .side-k {
+        color: #5b6c8c;
+        font-weight: 500;
+      }
+      .side-v {
+        font-weight: 600;
+        color: #314;
+      }
+      .side-actions {
+        margin-top: 0.7em;
+        display: flex;
+        gap: 0.52em;
+      }
+      .side-actions button {
+        flex: 1;
+        padding: 0.3em 0;
+        border-radius: 7px;
+        border: 1.1px solid #bdd6ee;
+        font-weight: 600;
+        font-size: 0.95em;
+        background: #f8fafc;
+        color: #2061a7;
+        cursor: pointer;
+      }
+      .side-actions button:focus,
+      .side-actions button:hover {
+        background: #eaf2fb;
+      }
+      .nodebox {
+        position: absolute;
+        min-width: 135px;
+        max-width: 200px;
+        min-height: 45px;
+        background: var(--node-bg);
+        border-radius: 10px;
+        border: 2px solid var(--node-border);
+        border-left: 6px solid transparent;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #1f2937;
+        box-shadow: var(--node-shadow, 0 2px 14px -9px #b4cae199);
+        padding: 0.39em 0.54em 0.5em 0.8em;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        outline: none;
+        opacity: 1;
+        pointer-events: auto;
+        transition: box-shadow 0.13s, border 0.13s, background 0.12s,
+          opacity 0.22s, transform 0.25s cubic-bezier(0.52, 1.04, 0.56, 1.11);
+      }
+      .nodebox.major {
+        border-left: 6px solid #e85663;
+        border-color: #e85663;
+        background: #fff8f7;
+        color: #bb182e;
+      }
+      .nodebox.selected,
+      .nodebox:focus-visible {
+        border-color: #1662ac;
+        background: #e8f3fc;
+        outline: 2px solid #1662ac;
+      }
+      .nodebox:hover {
+        border-color: #1662ac;
+        background: #f2f7fc;
+        z-index: 3;
+        box-shadow: 0 4px 22px -10px #6fa4cf17;
+      }
+      .nodebox.anim-hide {
+        opacity: 0;
+        transform: translateY(17px);
+        pointer-events: none;
+      }
+      .nodebox.anim-show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .node-header {
+        font-weight: 700;
+        margin-bottom: 0.13em;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+      }
+      .toggle-arrow {
+        font-size: 0.97em;
+        color: #1662ac;
+        font-weight: 700;
+        margin-right: 0.16em;
+        transition: transform 0.16s;
+        display: inline-block;
+      }
+      .cusip-label {
+        color: #497bb0;
+        font-size: 0.82em;
+        font-weight: 500;
+        margin: 0.09em 0 0.18em 0;
+      }
+      .node-body {
+        font-size: 0.92em;
+        color: #3c576c;
+      }
+      .node-pill {
+        display: inline-block;
+        font-size: 0.79em;
+        padding: 0.11em 0.46em;
+        border-radius: 0.94em;
+        font-weight: 600;
+      }
+      .node-pill.major {
+        background: #ffe6e4;
+        color: #e85663;
+      }
+      .node-pill.bench {
+        background: #e6fbe8;
+        color: #219150;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-left">
+        <img class="nav-logoimg" src="images/logo.png" alt="FUNDMAP Logo" />
+        <img class="nav-logotextimg" src="images/logotext.png" alt="FUNDMAP" />
+        <span class="nav-title-company">FUNDMAP</span>
+      </div>
+      <div class="nav-controls">
+        <label class="nav-upload-btn">
+          <input type="file" id="jsonFile" accept=".json,application/json" />
+          Upload JSON
+        </label>
+      </div>
+    </nav>
+    <form
+      class="main-form"
+      id="inputForm"
+      autocomplete="off"
+      onsubmit="return false;">
+      <label for="cusipBox">CUSIP</label>
+      <input type="text" id="cusipBox" required placeholder="e.g. BRT83LXX4" />
+      <label for="clientBox">Client</label>
+      <input type="text" id="clientBox" required placeholder="e.g. ACME" />
+      <label for="dateBox">Date</label>
+      <input type="date" id="dateBox" required />
+      <button id="visualizeBtn" type="button">Visualize</button>
+    </form>
+    <div id="canvas-outer">
+      <div id="canvas-stack">
+        <svg id="edgesSVG"></svg>
+        <div id="nodeLayer"></div>
+      </div>
+      <div class="sidebar" id="sidePanel"></div>
+    </div>
+    <script>
+      const NODE_W = 129,
+        NODE_H = 52,
+        H_GAP = 49,
+        V_GAP = 36,
+        ANIM_MS = 200;
+      let collapseState = {},
+        treeData = null,
+        animating = false,
+        lastSidebarId = null;
+      document.getElementById("jsonFile").onclick = function () {
+        this.value = null;
+      };
+      document
+        .getElementById("jsonFile")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function (evt) {
+            try {
+              collapseState = {};
+              treeData = JSON.parse(evt.target.result);
+              lastSidebarId = null;
+              renderTree();
+            } catch (e) {
+              alert("Invalid JSON: " + e.message);
+            }
+          };
+          reader.readAsText(file);
+        });
+      document.getElementById("visualizeBtn").onclick = function () {
+        const cusip = document.getElementById("cusipBox").value.trim();
+        if (!cusip || !treeData) return;
+        const node = findNodeByCUSIP(treeData, cusip);
+        if (!node) {
+          alert("CUSIP not found in tree.");
+          return;
+        }
+        collapseState = {};
+        expandPathToNode(treeData, cusip);
+        lastSidebarId = null;
+        renderTree(node);
+      };
+
+      function findNodeByCUSIP(node, cusip) {
+        if (node.name === cusip) return node;
+        if (node.children)
+          for (const c of node.children) {
+            let found = findNodeByCUSIP(c, cusip);
+            if (found) return found;
+          }
+        return null;
+      }
+      function expandPathToNode(root, cusip, parentId = "") {
+        if (root.name === cusip) return true;
+        if (!root.children) return false;
+        for (const c of root.children) {
+          if (
+            expandPathToNode(
+              c,
+              cusip,
+              (parentId ? parentId + "|" : "") + root.name
+            )
+          ) {
+            collapseState[(parentId ? parentId + "|" : "") + root.name] = false;
+            return true;
+          }
+        }
+        return false;
+      }
+      function layoutTreeRightAligned(
+        node,
+        x = 0,
+        rowAlloc = { val: 0 },
+        parentId = "",
+        depth = 0
+      ) {
+        const id = (parentId ? parentId + "|" : "") + node.name;
+        const collapsed = collapseState[id];
+        const children = !collapsed && node.children ? node.children : [];
+        let nodes = [],
+          edges = [];
+        let myRow = rowAlloc.val++;
+        let thisY = myRow * (NODE_H + V_GAP) + 36;
+        nodes.push({ id, node, x, y: thisY, major: !!node.major_path, depth });
+        if (children.length) {
+          let localRowAlloc = { val: myRow };
+          for (let i = 0; i < children.length; ++i) {
+            let useRowAlloc = i === 0 ? localRowAlloc : rowAlloc;
+            let { nodes: childNodes, edges: childEdges } =
+              layoutTreeRightAligned(
+                children[i],
+                x + NODE_W + H_GAP,
+                useRowAlloc,
+                id,
+                depth + 1
+              );
+            nodes = nodes.concat(childNodes);
+            edges = edges.concat(childEdges);
+            edges.push({
+              from: { x: x + NODE_W, y: thisY + NODE_H / 2 },
+              to: { x: childNodes[0].x, y: childNodes[0].y + NODE_H / 2 },
+              major: !!children[i].major_path,
+            });
+            if (i === 0)
+              rowAlloc.val = Math.max(rowAlloc.val, localRowAlloc.val);
+          }
+        }
+        return { nodes, edges };
+      }
+      function createNodeBox(pos, openDetailSidebar) {
+        const node = pos.node;
+        const box = document.createElement("div");
+        box.className = "nodebox" + (pos.major ? " major" : "");
+        box.style.left = pos.x + "px";
+        box.style.top = pos.y + "px";
+        box.style.width = NODE_W + "px";
+        let arrow =
+          node.children && node.children.length
+            ? `<span class="toggle-arrow">&#9654;</span>`
+            : "";
+        box.innerHTML = `<div class="node-header">${arrow}${node.name}</div>
+        <div class="cusip-label">${node.sec_group || ""}${
+          node.sec_type ? " / " + node.sec_type : ""
+        }${
+          node.major_path
+            ? `<span class="node-pill major" style="margin-left:.7em;">Major</span>`
+            : ""
+        }${
+          node.is_benchmark
+            ? ` <span class="node-pill bench">Benchmark</span>`
+            : ""
+        }</div>
+        <div class="node-body">
+          <div class="node-key-value"><span class="node-key">OAD tdy:</span><span class="node-val">${
+            node.oad_today ?? "-"
+          }</span>
+          <span class="node-key">Yday:</span><span class="node-val">${
+            node.oad_yesterday ?? "-"
+          }</span>
+          <span class="node-key">Δ%:</span><span class="node-val">${
+            typeof node.oad_change_pct !== "undefined"
+              ? (node.oad_change_pct > 0 ? "+" : "") + node.oad_change_pct + "%"
+              : "-"
+          }</span>
+          </div>
+        </div>`;
+        box.tabIndex = 0;
+        box.onclick = function (e) {
+          if (node.children && node.children.length) {
+            collapseState[pos.id] = !collapseState[pos.id];
+            animating = true;
+            const affectedIds = findNodeBranchIds(node);
+            affectedIds.forEach((id) => {
+              const el = document.querySelector(`[data-node-id="${id}"]`);
+              if (el) {
+                el.classList.remove("anim-show");
+                void el.offsetWidth;
+                el.classList.add("anim-hide");
+              }
+            });
+            setTimeout(() => {
+              renderTree();
+              affectedIds.forEach((id) => {
+                const el = document.querySelector(`[data-node-id="${id}"]`);
+                if (el) el.classList.add("anim-show");
+              });
+              animating = false;
+            }, ANIM_MS);
+          }
+          lastSidebarId = pos.id;
+          openDetailSidebar(pos);
+          e.stopPropagation();
+        };
+        box.setAttribute("data-node-id", pos.id);
+        box.classList.add("anim-show");
+        return box;
+      }
+      function findNodeBranchIds(node) {
+        let out = [node.name];
+        if (node.children)
+          for (const ch of node.children)
+            out = out.concat(findNodeBranchIds(ch));
+        return out;
+      }
+      function renderDetailSidebar(pos) {
+        const node = pos.node;
+        const sidebar = document.getElementById("sidePanel");
+        let html = `<button class="close-sidebar" onclick="document.getElementById('sidePanel').classList.remove('open')">&times;</button>`;
+        html += `<h2 class="side-h2">${node.name}</h2>`;
+        html += `<div class="side-kv"><span class="side-k">CUSIP</span><span class="side-v">${node.name}</span></div>`;
+        if (node.cusip)
+          html += `<div class="side-kv"><span class="side-k">Alt CUSIP</span><span class="side-v">${node.cusip}</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">SEC GROUP</span><span class="side-v">${
+          node.sec_group || "-"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">SEC TYPE</span><span class="side-v">${
+          node.sec_type || "-"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD (Today)</span><span class="side-v">${
+          node.oad_today ?? "-"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD (Yday)</span><span class="side-v">${
+          node.oad_yesterday ?? "-"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD Δ %</span><span class="side-v">${
+          typeof node.oad_change_pct !== "undefined"
+            ? (node.oad_change_pct > 0 ? "+" : "") + node.oad_change_pct + "%"
+            : "-"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">Benchmark</span><span class="side-v">${
+          node.is_benchmark ? "✔️" : "—"
+        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">Major Path</span><span class="side-v">${
+          node.major_path ? "✔️" : "—"
+        }</span></div>`;
+        if (node.children && node.children.length)
+          html += `<div class="side-kv"><span class="side-k">Children</span><span class="side-v">${node.children.length}</span></div>`;
+        html += `<div class="side-actions">
+        <button onclick="expandBranch('${pos.id}');event.stopPropagation();">Expand Branch</button>
+        <button onclick="collapseBranch('${pos.id}');event.stopPropagation();">Collapse Branch</button>
+      </div>`;
+        sidebar.innerHTML = html;
+        sidebar.classList.add("open");
+        sidebar.onclick = (e) => e.stopPropagation();
+        window.expandBranch = function (id) {
+          collapseState[id] = false;
+          renderTree();
+          openDetailsIfExists();
+        };
+        window.collapseBranch = function (id) {
+          collapseState[id] = true;
+          renderTree();
+          openDetailsIfExists();
+        };
+      }
+      function openDetailsIfExists() {
+        if (lastSidebarId) {
+          const nodes = Array.from(document.querySelectorAll(".nodebox"));
+          for (const box of nodes) {
+            if (box.getAttribute("data-node-id") === lastSidebarId) {
+              const pos = {
+                node: getNodeById(treeData, lastSidebarId),
+                id: lastSidebarId,
+              };
+              renderDetailSidebar(pos);
+              break;
+            }
+          }
+        }
+      }
+      function getNodeById(node, id, parentId = "") {
+        const thisID = (parentId ? parentId + "|" : "") + node.name;
+        if (thisID === id) return node;
+        if (node.children)
+          for (const c of node.children) {
+            let found = getNodeById(c, id, thisID);
+            if (found) return found;
+          }
+        return null;
+      }
+      function renderTree(rootOverride) {
+        const cstack = document.getElementById("canvas-stack"),
+          cinner = document.getElementById("nodeLayer"),
+          svg = document.getElementById("edgesSVG"),
+          sidebar = document.getElementById("sidePanel");
+        cinner.innerHTML = "";
+        svg.innerHTML = "";
+        const root = rootOverride || treeData;
+        if (!root) return;
+        const { nodes, edges } = layoutTreeRightAligned(root, 40, { val: 0 });
+        let allX = nodes.map((n) => n.x),
+          allY = nodes.map((n) => n.y);
+        let cW = Math.max(...allX, 0) + NODE_W + 180,
+          cH = Math.max(...allY, 0) + NODE_H + 130;
+        cstack.style.width = cW + "px";
+        cstack.style.height = cH + "px";
+        cinner.style.width = cW + "px";
+        cinner.style.height = cH + "px";
+        svg.setAttribute("width", cW);
+        svg.setAttribute("height", cH);
+        edges.forEach((e) => {
+          let mx = (e.from.x + e.to.x) / 2;
+          svg.innerHTML += `<path d="M${e.from.x},${e.from.y} C${mx},${
+            e.from.y
+          } ${mx},${e.to.y} ${e.to.x},${e.to.y}" stroke="${
+            e.major ? "var(--edge-major)" : "var(--edge-main)"
+          }" stroke-width="2.1" fill="none"/>`;
+        });
+        nodes.forEach((pos) => {
+          let el = createNodeBox(pos, renderDetailSidebar);
+          el.classList.add("anim-show");
+          cinner.appendChild(el);
+        });
+        openDetailsIfExists();
+      }
+      document.getElementById("sidePanel").onclick = (e) => e.stopPropagation();
+      document.body.onclick = () => {}; // Disable sidebar autoclose
+    </script>
+  </body>
+</html>
