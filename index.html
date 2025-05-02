@@ -5,7 +5,7 @@
     <title>FUNDMAP</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
-      href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap"
+      href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap"
       rel="stylesheet" />
     <style>
       :root {
@@ -18,7 +18,10 @@
         --canvas-bg: #f7fafc;
         --node-bg: #fff;
         --sidebar-bg: #fbfcfe;
+        --positive: #219150;
+        --negative: #e85663;
       }
+
       html,
       body {
         margin: 0;
@@ -26,11 +29,13 @@
         width: 100vw;
         height: 100vh;
       }
+
       body {
         background: var(--canvas-bg);
         color: #233357;
         font-family: "Inter", Arial, sans-serif;
       }
+
       .navbar {
         display: flex;
         align-items: center;
@@ -48,23 +53,27 @@
         border-bottom: 1px solid #dde2f4;
         box-shadow: 0 3px 20px -12px #b1cae745;
       }
+
       .nav-left {
         display: flex;
         align-items: center;
         gap: 1.15em;
       }
+
       .nav-logoimg {
         width: 2rem;
         height: 2rem;
         border-radius: 0.5em;
         object-fit: contain;
       }
+
       .nav-logotextimg {
         height: 1.55rem;
         margin-left: 0.18em;
         margin-right: 0.7em;
         object-fit: contain;
       }
+
       .nav-title-company {
         font-size: 1.04em;
         margin-left: 0.3em;
@@ -72,11 +81,13 @@
         letter-spacing: 0.01em;
         color: var(--nav-blue);
       }
+
       .nav-controls {
         display: flex;
         align-items: center;
         gap: 1em;
       }
+
       .nav-upload-btn {
         background: #fff;
         color: var(--nav-blue);
@@ -89,14 +100,17 @@
         transition: background 0.13s, border 0.16s, color 0.13s;
         margin-left: 0.5em;
       }
+
       .nav-upload-btn:focus,
       .nav-upload-btn:hover {
         background: #f7fbfd;
         border-color: var(--nav-blue);
       }
+
       .nav-upload-btn input[type="file"] {
         display: none;
       }
+
       .main-form {
         display: flex;
         align-items: center;
@@ -111,12 +125,14 @@
         padding: 0.76em 0 0.76em 0;
         box-shadow: 0 4px 17px -10px #5fa9e080;
       }
+
       .main-form label {
         font-weight: 600;
         color: #365987;
         font-size: 1.03em;
         margin-right: 6px;
       }
+
       .main-form input[type="text"],
       .main-form input[type="date"] {
         font-size: 1.04em;
@@ -128,11 +144,13 @@
         outline: none;
         transition: border 0.14s;
       }
+
       .main-form input[type="text"]:focus,
       .main-form input[type="date"]:focus {
         border-color: var(--nav-blue);
         background: #f1f6fd;
       }
+
       .main-form button {
         font-size: 1.02em;
         padding: 0.44em 1.13em;
@@ -145,27 +163,32 @@
         cursor: pointer;
         transition: background 0.13s;
       }
+
       .main-form button:focus,
       .main-form button:hover {
         background: #e5f3ff;
         border-color: var(--nav-blue);
       }
+
       #canvas-outer {
         position: absolute;
         left: 0;
         top: 120px;
         right: 0;
         bottom: 0;
-        overflow: hidden; /* Changed from 'auto' to 'hidden' for zoom/pan */
+        overflow: hidden;
+        /* Changed from 'auto' to 'hidden' for zoom/pan */
         width: 100vw;
         height: calc(100vh - 120px);
         background: var(--canvas-bg);
       }
+
       #canvas-stack {
         position: relative;
         transform-origin: 0 0;
         transition: transform 0.1s ease-out;
       }
+
       #edgesSVG {
         position: absolute;
         top: 0;
@@ -173,12 +196,14 @@
         z-index: 1;
         pointer-events: none;
       }
+
       #nodeLayer {
         position: absolute;
         top: 0;
         left: 0;
         z-index: 2;
       }
+
       .sidebar {
         position: fixed;
         top: 70px;
@@ -197,9 +222,11 @@
         display: none;
         flex-direction: column;
       }
+
       .sidebar.open {
         display: flex;
       }
+
       .close-sidebar {
         position: absolute;
         top: 0.41em;
@@ -211,15 +238,18 @@
         cursor: pointer;
         font-weight: bold;
       }
+
       .close-sidebar:focus,
       .close-sidebar:hover {
         color: var(--fund-red);
         background: #f5e9eb;
       }
+
       .side-h2 {
         font-weight: 700;
         margin: 0 0 0.24em;
       }
+
       .side-kv {
         display: flex;
         justify-content: space-between;
@@ -227,19 +257,23 @@
         font-size: 0.93em;
         padding: 0.15em 0.22em;
       }
+
       .side-k {
         color: #5b6c8c;
         font-weight: 500;
       }
+
       .side-v {
         font-weight: 600;
         color: #314;
       }
+
       .side-actions {
         margin-top: 0.7em;
         display: flex;
         gap: 0.52em;
       }
+
       .side-actions button {
         flex: 1;
         padding: 0.3em 0;
@@ -251,10 +285,13 @@
         color: #2061a7;
         cursor: pointer;
       }
+
       .side-actions button:focus,
       .side-actions button:hover {
         background: #eaf2fb;
       }
+
+      /* Original Node styles with subtle improvements */
       .nodebox {
         position: absolute;
         min-width: 135px;
@@ -281,33 +318,40 @@
           opacity 0.22s, transform 0.25s cubic-bezier(0.52, 1.04, 0.56, 1.11);
         z-index: 5;
       }
+
       .nodebox.major {
         border-left: 6px solid #e85663;
         border-color: #e85663;
         background: #fff8f7;
         color: #bb182e;
       }
+
       .nodebox.selected,
       .nodebox:focus-visible {
         border-color: #1662ac;
         background: #e8f3fc;
         outline: 2px solid #1662ac;
       }
+
       .nodebox:hover {
         border-color: #1662ac;
         background: #f2f7fc;
         z-index: 10;
         box-shadow: 0 4px 22px -10px #6fa4cf17;
+        transform: translateY(-2px);
       }
+
       .nodebox.anim-hide {
         opacity: 0;
         transform: translateY(17px);
         pointer-events: none;
       }
+
       .nodebox.anim-show {
         opacity: 1;
         transform: translateY(0);
       }
+
       .node-header {
         font-weight: 700;
         margin-bottom: 0.13em;
@@ -315,6 +359,7 @@
         align-items: center;
         gap: 0.5em;
       }
+
       .toggle-arrow {
         font-size: 0.97em;
         color: #1662ac;
@@ -323,16 +368,43 @@
         transition: transform 0.16s;
         display: inline-block;
       }
+
       .cusip-label {
         color: #497bb0;
         font-size: 0.82em;
         font-weight: 500;
         margin: 0.09em 0 0.18em 0;
       }
+
       .node-body {
         font-size: 0.92em;
         color: #3c576c;
       }
+
+      /* Reduced size for node-key-value */
+      .node-key-value {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.2em 0.4em;
+        font-size: 0.85em;
+      }
+
+      .node-key {
+        color: #5b6c8c;
+      }
+
+      .node-val {
+        font-weight: 600;
+      }
+
+      .node-val.positive {
+        color: var(--positive);
+      }
+
+      .node-val.negative {
+        color: var(--negative);
+      }
+
       .node-pill {
         display: inline-block;
         font-size: 0.79em;
@@ -340,23 +412,28 @@
         border-radius: 0.94em;
         font-weight: 600;
       }
+
       .node-pill.major {
         background: #ffe6e4;
         color: #e85663;
       }
+
       .node-pill.bench {
         background: #e6fbe8;
         color: #219150;
       }
+
+      .nodebox.expanded .toggle-arrow {
+        transform: rotate(90deg);
+      }
+
       /* Add these to fix edge rendering */
       svg path {
         pointer-events: none;
       }
+
       svg circle {
         pointer-events: none;
-      }
-      .nodebox.expanded .toggle-arrow {
-        transform: rotate(90deg);
       }
 
       /* Zoom Controls */
@@ -433,6 +510,7 @@
       }
     </style>
   </head>
+
   <body>
     <nav class="navbar">
       <div class="nav-left">
@@ -476,10 +554,10 @@
       <div class="sidebar" id="sidePanel"></div>
     </div>
     <script>
-      const NODE_W = 140, // Slightly wider for better content fit
-        NODE_H = 60, // Slightly taller for better content fit
-        H_GAP = 60, // Horizontal gap between nodes
-        V_GAP = 25, // Vertical gap between nodes
+      const NODE_W = 135, // Keep original width
+        NODE_H = 52, // Keep original height
+        H_GAP = 49, // Keep original horizontal gap
+        V_GAP = 38, // Keep original vertical gap
         ANIM_MS = 200; // Animation duration
       let collapseState = {},
         treeData = null,
@@ -493,8 +571,15 @@
       let isPanning = false;
       let startPanX = 0;
       let startPanY = 0;
-      let lastMouseX = 0;
-      let lastMouseY = 0;
+
+      function formatDecimal(value) {
+        if (value === null || value === undefined) return "0";
+
+        const num = parseFloat(value);
+        if (isNaN(num)) return value;
+
+        return num.toFixed(3);
+      }
 
       document.getElementById("jsonFile").onclick = function () {
         this.value = null;
@@ -567,25 +652,27 @@
         return false;
       }
 
-      // Improved layout function that expands nodes horizontally to the right
       function layoutTree(node, x = 40, y = 40, parentId = "") {
         const id = (parentId ? parentId + "|" : "") + node.name;
         const collapsed = collapseState[id];
-        const children = !collapsed && node.children ? node.children : [];
+        let children = !collapsed && node.children ? node.children : [];
 
         let nodes = [],
           edges = [];
 
-        // Add this node
         nodes.push({ id, node, x, y, major: !!node.major_path });
 
         if (children.length) {
-          // Next column position
+          children.sort((a, b) => {
+            const aChange = a.oad_change_pct || 0;
+            const bChange = b.oad_change_pct || 0;
+            return bChange - aChange;
+          });
+
           const nextX = x + NODE_W + H_GAP;
           let currentY = y;
 
           for (let i = 0; i < children.length; i++) {
-            // Layout this child branch
             const { nodes: childNodes, edges: childEdges } = layoutTree(
               children[i],
               nextX,
@@ -593,20 +680,16 @@
               id
             );
 
-            // Add edge from parent to this child
             edges.push({
               from: { x: x + NODE_W, y: y + NODE_H / 2 },
               to: { x: nextX, y: currentY + NODE_H / 2 },
               major: !!children[i].major_path,
             });
 
-            // Add child nodes and edges to result
             nodes = nodes.concat(childNodes);
             edges = edges.concat(childEdges);
 
-            // Update Y position for next child
             if (childNodes.length > 0) {
-              // Find the lowest node in this branch
               const lowestY = Math.max(...childNodes.map((n) => n.y)) + NODE_H;
               currentY = lowestY + V_GAP;
             } else {
@@ -629,7 +712,22 @@
         box.style.top = pos.y + "px";
         box.style.width = NODE_W + "px";
 
-        let arrow =
+        const oadToday = formatDecimal(node.oad_today);
+        const oadYesterday = formatDecimal(node.oad_yesterday);
+
+        const oadChange =
+          node.oad_change_pct !== null && node.oad_change_pct !== undefined
+            ? parseFloat(node.oad_change_pct)
+            : 0;
+        const changeClass =
+          oadChange > 0 ? "positive" : oadChange < 0 ? "negative" : "";
+
+        const changeDisplay =
+          node.oad_change_pct !== null && node.oad_change_pct !== undefined
+            ? (oadChange > 0 ? "+" : "") + oadChange.toFixed(3) + "%"
+            : "0.000%";
+
+        const arrow =
           node.children && node.children.length
             ? `<span class="toggle-arrow">&#9654;</span>`
             : "";
@@ -638,32 +736,20 @@
         <div class="cusip-label">${node.sec_group || ""}${
           node.sec_type ? " / " + node.sec_type : ""
         }${
-          node.major_path
-            ? `<span class="node-pill major" style="margin-left:.7em;">Major</span>`
-            : ""
-        }${
           node.is_benchmark
             ? ` <span class="node-pill bench">Benchmark</span>`
             : ""
         }</div>
         <div class="node-body">
-          <div class="node-key-value"><span class="node-key">OAD tdy:</span><span class="node-val">${
-            node.oad_today ?? "-"
-          }</span>
-          <span class="node-key">Yday:</span><span class="node-val">${
-            node.oad_yesterday ?? "-"
-          }</span>
-          <span class="node-key">Δ%:</span><span class="node-val">${
-            typeof node.oad_change_pct !== "undefined"
-              ? (node.oad_change_pct > 0 ? "+" : "") + node.oad_change_pct + "%"
-              : "-"
-          }</span>
+          <div class="node-key-value">
+            <span class="node-key">OAD tdy:</span><span class="node-val">${oadToday}</span>
+            <span class="node-key">Yday:</span><span class="node-val">${oadYesterday}</span>
+            <span class="node-key">Δ%:</span><span class="node-val ${changeClass}">${changeDisplay}</span>
           </div>
         </div>`;
 
         box.tabIndex = 0;
         box.onclick = function (e) {
-          // Only respond to clicks if we're not in the middle of panning
           if (isPanning) {
             e.stopPropagation();
             return;
@@ -715,6 +801,17 @@
       function renderDetailSidebar(pos) {
         const node = pos.node;
         const sidebar = document.getElementById("sidePanel");
+
+        const oadToday = formatDecimal(node.oad_today);
+        const oadYesterday = formatDecimal(node.oad_yesterday);
+
+        const oadChangePercentage =
+          node.oad_change_pct !== null && node.oad_change_pct !== undefined
+            ? parseFloat(node.oad_change_pct)
+            : 0;
+
+        const changeSign = oadChangePercentage >= 0 ? "+" : "";
+
         let html = `<button class="close-sidebar" onclick="document.getElementById('sidePanel').classList.remove('open')">&times;</button>`;
         html += `<h2 class="side-h2">${node.name}</h2>`;
         html += `<div class="side-kv"><span class="side-k">CUSIP</span><span class="side-v">${node.name}</span></div>`;
@@ -726,17 +823,11 @@
         html += `<div class="side-kv"><span class="side-k">SEC TYPE</span><span class="side-v">${
           node.sec_type || "-"
         }</span></div>`;
-        html += `<div class="side-kv"><span class="side-k">OAD (Today)</span><span class="side-v">${
-          node.oad_today ?? "-"
-        }</span></div>`;
-        html += `<div class="side-kv"><span class="side-k">OAD (Yday)</span><span class="side-v">${
-          node.oad_yesterday ?? "-"
-        }</span></div>`;
-        html += `<div class="side-kv"><span class="side-k">OAD Δ %</span><span class="side-v">${
-          typeof node.oad_change_pct !== "undefined"
-            ? (node.oad_change_pct > 0 ? "+" : "") + node.oad_change_pct + "%"
-            : "-"
-        }</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD (Today)</span><span class="side-v">${oadToday}</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD (Yday)</span><span class="side-v">${oadYesterday}</span></div>`;
+        html += `<div class="side-kv"><span class="side-k">OAD Δ %</span><span class="side-v">${changeSign}${oadChangePercentage.toFixed(
+          3
+        )}%</span></div>`;
         html += `<div class="side-kv"><span class="side-k">Benchmark</span><span class="side-v">${
           node.is_benchmark ? "✔️" : "—"
         }</span></div>`;
@@ -801,7 +892,6 @@
         const root = rootOverride || treeData;
         if (!root) return;
 
-        // Use improved layout function
         const { nodes, edges } = layoutTree(root);
 
         let allX = nodes.map((n) => n.x),
@@ -820,17 +910,16 @@
 
         // Draw edges with right-angle connections
         edges.forEach((e) => {
-          // Draw edge with better right angles
           svg.innerHTML += `<path 
-            d="M${e.from.x},${e.from.y} 
-               H${e.from.x + (e.to.x - e.from.x) / 2} 
-               V${e.to.y} 
-               H${e.to.x}" 
-            stroke="${e.major ? "var(--edge-major)" : "var(--edge-main)"}" 
-            stroke-width="2.1"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round" />`;
+        d="M${e.from.x},${e.from.y} 
+           H${e.from.x + (e.to.x - e.from.x) / 2} 
+           V${e.to.y} 
+           H${e.to.x}" 
+        stroke="${e.major ? "var(--edge-major)" : "var(--edge-main)"}" 
+        stroke-width="2.1"
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round" />`;
         });
 
         nodes.forEach((pos) => {
@@ -858,7 +947,6 @@
 
       function zoomIn() {
         if (zoomLevel < 3) {
-          // Limit max zoom
           zoomLevel = Math.min(3, zoomLevel + 0.1);
           updateTransform();
         }
@@ -866,7 +954,6 @@
 
       function zoomOut() {
         if (zoomLevel > 0.2) {
-          // Limit min zoom
           zoomLevel = Math.max(0.2, zoomLevel - 0.1);
           updateTransform();
         }
@@ -895,13 +982,10 @@
       const canvasOuter = document.getElementById("canvas-outer");
 
       canvasOuter.addEventListener("mousedown", function (e) {
-        // Only start panning on left mouse button
         if (e.button === 0) {
           isPanning = true;
           startPanX = e.clientX - panOffsetX;
           startPanY = e.clientY - panOffsetY;
-          lastMouseX = e.clientX;
-          lastMouseY = e.clientY;
           document.body.classList.add("panning");
         }
       });
@@ -926,18 +1010,13 @@
 
       // Handle keyboard shortcuts
       document.addEventListener("keydown", function (e) {
-        // Zoom with + and -
         if (e.key === "+" || e.key === "=") {
           zoomIn();
         } else if (e.key === "-" || e.key === "_") {
           zoomOut();
-        }
-        // Reset with 0
-        else if (e.key === "0") {
+        } else if (e.key === "0") {
           resetView();
-        }
-        // Pan with arrow keys
-        else if (e.key === "ArrowUp") {
+        } else if (e.key === "ArrowUp") {
           panOffsetY += 50;
           updateTransform();
         } else if (e.key === "ArrowDown") {
@@ -953,7 +1032,7 @@
       });
 
       document.getElementById("sidePanel").onclick = (e) => e.stopPropagation();
-      document.body.onclick = () => {}; // Disable sidebar autoclose
+      document.body.onclick = () => {};
     </script>
   </body>
 </html>
