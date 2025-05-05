@@ -1,14 +1,13 @@
 const NODE_W = 135,
     NODE_H = 52,
     H_GAP = 49,
-    V_GAP = 44, // Increased for better separation
+    V_GAP = 44,
     ANIM_MS = 200;
 let collapseState = {},
     treeData = null,
     animating = false,
     lastSidebarId = null;
 
-// Zoom & Pan variables
 let zoomLevel = 1;
 let panOffsetX = 0;
 let panOffsetY = 0;
@@ -16,7 +15,6 @@ let isPanning = false;
 let startPanX = 0;
 let startPanY = 0;
 
-// Helper for 3-decimal formatting
 function formatDecimal(value) {
     if (value === null || value === undefined) return "0";
     const num = parseFloat(value);
@@ -24,28 +22,29 @@ function formatDecimal(value) {
     return num.toFixed(3);
 }
 
-// Json upload and wire up
 document.getElementById("jsonFile").onclick = function () {
     this.value = null;
 };
-document.getElementById("jsonFile").addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function (evt) {
-        try {
-            collapseState = {};
-            treeData = JSON.parse(evt.target.result);
-            lastSidebarId = null;
-            resetView();
-            renderTree();
-        } catch (e) {
-            alert("Invalid JSON: " + e.message);
-        }
-    };
-    reader.readAsText(file);
-});
 
+document
+    .getElementById("jsonFile")
+    .addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+            try {
+                collapseState = {};
+                treeData = JSON.parse(evt.target.result);
+                lastSidebarId = null;
+                resetView();
+                renderTree();
+            } catch (e) {
+                alert("Invalid JSON: " + e.message);
+            }
+        };
+        reader.readAsText(file);
+    });
 
 document.getElementById("visualizeBtn").onclick = function () {
     const cusip = document.getElementById("cusipBox").value.trim();
@@ -90,7 +89,7 @@ function expandPathToNode(root, cusip, parentId = "") {
     return false;
 }
 
-// SORTS BY oad_contribution_pct
+// Sorting by oad_contribution_pct
 function layoutTree(node, x = 40, y = 40, parentId = "") {
     const id = (parentId ? parentId + "|" : "") + node.name;
     const collapsed = collapseState[id];
@@ -103,8 +102,8 @@ function layoutTree(node, x = 40, y = 40, parentId = "") {
 
     if (children.length) {
         children.sort((a, b) => {
-            const aChange = a.oad_contribution_pct || 0; // NEW FIELD
-            const bChange = b.oad_contribution_pct || 0;
+            const aChange = (typeof a.oad_contribution_pct === "number" && !isNaN(a.oad_contribution_pct)) ? a.oad_contribution_pct : 0;
+            const bChange = (typeof b.oad_contribution_pct === "number" && !isNaN(b.oad_contribution_pct)) ? b.oad_contribution_pct : 0;
             return bChange - aChange;
         });
 
@@ -150,10 +149,10 @@ function createNodeBox(pos, openDetailSidebar) {
     box.style.left = pos.x + "px";
     box.style.top = pos.y + "px";
     box.style.width = NODE_W + "px";
+
     const oadToday = formatDecimal(node.oad_today);
     const oadYesterday = formatDecimal(node.oad_yesterday);
 
-    // Use oad_contribution_pct and style
     const oadContribution =
         node.oad_contribution_pct !== null && node.oad_contribution_pct !== undefined
             ? parseFloat(node.oad_contribution_pct)
@@ -182,6 +181,7 @@ function createNodeBox(pos, openDetailSidebar) {
             <span class="node-key">Yday:</span><span class="node-val">${oadYesterday}</span>
             <span class="node-key">Δ Contr%:</span><span class="node-val ${changeClass}">${changeDisplay}</span>
           </div>
+          ${node.error_message ? `<div class="node-error">${node.error_message}</div>` : ""}
         </div>`;
 
     box.tabIndex = 0;
@@ -190,7 +190,6 @@ function createNodeBox(pos, openDetailSidebar) {
             e.stopPropagation();
             return;
         }
-
         if (node.children?.length || node.childnen?.length) {
             collapseState[pos.id] = !collapseState[pos.id];
             box.classList.toggle("expanded");
@@ -361,7 +360,6 @@ function renderTree(rootOverride) {
     openDetailsIfExists();
 }
 
-// Zoom and Pan Functions (unchanged)
 function updateTransform() {
     const canvas = document.getElementById("canvas-stack");
     canvas.style.transform = `translate(${panOffsetX}px, ${panOffsetY}px) scale(${zoomLevel})`;

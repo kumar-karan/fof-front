@@ -432,3 +432,11 @@
   #canvas-outer.pan-mode {
     cursor: grab;
   }
+  .node-error {
+    color: #e85663;
+    font-size: 0.83em;
+    margin-top: 4px;
+    font-weight: 500;
+    word-break: break-word;
+    white-space: pre-line;
+  }
