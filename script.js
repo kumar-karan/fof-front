@@ -25,7 +25,6 @@ function formatDecimal(value) {
 document.getElementById("jsonFile").onclick = function () {
     this.value = null;
 };
-
 document
     .getElementById("jsonFile")
     .addEventListener("change", function (e) {
@@ -63,7 +62,7 @@ document.getElementById("visualizeBtn").onclick = function () {
 
 function findNodeByCUSIP(node, cusip) {
     if (node.name === cusip) return node;
-    let children = node.children || node.childnen || [];
+    let children = node.children || [];
     for (const c of children) {
         let found = findNodeByCUSIP(c, cusip);
         if (found) return found;
@@ -73,7 +72,7 @@ function findNodeByCUSIP(node, cusip) {
 
 function expandPathToNode(root, cusip, parentId = "") {
     if (root.name === cusip) return true;
-    let children = root.children || root.childnen || [];
+    let children = root.children || [];
     for (const c of children) {
         if (
             expandPathToNode(
@@ -89,11 +88,10 @@ function expandPathToNode(root, cusip, parentId = "") {
     return false;
 }
 
-// Sorting by oad_contribution_pct
 function layoutTree(node, x = 40, y = 40, parentId = "") {
     const id = (parentId ? parentId + "|" : "") + node.name;
     const collapsed = collapseState[id];
-    let children = !collapsed && (node.children || node.childnen) ? (node.children || node.childnen) : [];
+    let children = !collapsed && node.children ? node.children : [];
 
     let nodes = [],
         edges = [];
@@ -102,8 +100,14 @@ function layoutTree(node, x = 40, y = 40, parentId = "") {
 
     if (children.length) {
         children.sort((a, b) => {
-            const aChange = (typeof a.oad_contribution_pct === "number" && !isNaN(a.oad_contribution_pct)) ? a.oad_contribution_pct : 0;
-            const bChange = (typeof b.oad_contribution_pct === "number" && !isNaN(b.oad_contribution_pct)) ? b.oad_contribution_pct : 0;
+            const aChange =
+                typeof a.oad_contribution_pct === "number" && !isNaN(a.oad_contribution_pct)
+                    ? a.oad_contribution_pct
+                    : 0;
+            const bChange =
+                typeof b.oad_contribution_pct === "number" && !isNaN(b.oad_contribution_pct)
+                    ? b.oad_contribution_pct
+                    : 0;
             return bChange - aChange;
         });
 
@@ -165,24 +169,31 @@ function createNodeBox(pos, openDetailSidebar) {
             oadContribution.toFixed(3) +
             "%"
             : "0.000%";
+
+    // loading bar value for the background
+    const percent = Math.max(
+        0,
+        Math.min(100, node.oad_contribution_pct !== undefined && node.oad_contribution_pct !== null
+            ? Math.abs(Number(node.oad_contribution_pct))
+            : 0)
+    );
+
     const arrow =
-        (node.children?.length || node.childnen?.length)
+        node.children && node.children.length
             ? `<span class="toggle-arrow">&#9654;</span>`
             : "";
-    box.innerHTML = `<div class="node-header">${arrow}${node.name}</div>
-        <div class="cusip-label">${node.sec_group || ""}${node.sec_type ? " / " + node.sec_type : ""
-        }${node.is_benchmark
-            ? ` <span class="node-pill bench">Benchmark</span>`
-            : ""
-        }</div>
-        <div class="node-body">
-          <div class="node-key-value">
-            <span class="node-key">OAD tdy:</span><span class="node-val">${oadToday}</span>
-            <span class="node-key">Yday:</span><span class="node-val">${oadYesterday}</span>
-            <span class="node-key">Δ Contr%:</span><span class="node-val ${changeClass}">${changeDisplay}</span>
-          </div>
-          ${node.error_message ? `<div class="node-error">${node.error_message}</div>` : ""}
-        </div>`;
+
+    box.innerHTML = `<div class="node-progress-bg" style="width:${percent}%;"></div>
+    <div class="node-header">${arrow}${node.name}</div>
+    <div class="cusip-label">${node.sec_group || ""}${node.sec_type ? " / " + node.sec_type : ""}${node.is_benchmark ? ` <span class="node-pill bench">Benchmark</span>` : ""}</div>
+    <div class="node-body">
+      <div class="node-key-value">
+        <span class="node-key">OAD tdy:</span><span class="node-val">${oadToday}</span>
+        <span class="node-key">Yday:</span><span class="node-val">${oadYesterday}</span>
+        <span class="node-key">Δ Contr%:</span><span class="node-val ${changeClass}">${changeDisplay}</span>
+      </div>
+      ${node.error_message ? `<div class="node-error">${node.error_message}</div>` : ""}
+    </div>`;
 
     box.tabIndex = 0;
     box.onclick = function (e) {
@@ -190,7 +201,7 @@ function createNodeBox(pos, openDetailSidebar) {
             e.stopPropagation();
             return;
         }
-        if (node.children?.length || node.childnen?.length) {
+        if (node.children && node.children.length) {
             collapseState[pos.id] = !collapseState[pos.id];
             box.classList.toggle("expanded");
 
@@ -227,7 +238,7 @@ function createNodeBox(pos, openDetailSidebar) {
 
 function findNodeBranchIds(node) {
     let out = [node.name];
-    let children = node.children || node.childnen || [];
+    let children = node.children || [];
     for (const ch of children)
         out = out.concat(findNodeBranchIds(ch));
     return out;
@@ -261,8 +272,8 @@ function renderDetailSidebar(pos) {
         }</span></div>`;
     html += `<div class="side-kv"><span class="side-k">Major Path</span><span class="side-v">${node.major_path ? "✔️" : "—"
         }</span></div>`;
-    if ((node.children?.length || node.childnen?.length))
-        html += `<div class="side-kv"><span class="side-k">Children</span><span class="side-v">${(node.children?.length || node.childnen?.length) || 0
+    if (node.children && node.children.length)
+        html += `<div class="side-kv"><span class="side-k">Children</span><span class="side-v">${node.children.length
             }</span></div>`;
     if (node.error_message)
         html += `<div style="color:#e85663; margin:8px 0;"><strong>⚠️ Error:</strong> ${node.error_message}</div>`;
@@ -304,7 +315,7 @@ function openDetailsIfExists() {
 function getNodeById(node, id, parentId = "") {
     const thisID = (parentId ? parentId + "|" : "") + node.name;
     if (thisID === id) return node;
-    let children = node.children || node.childnen || [];
+    let children = node.children || [];
     for (const c of children) {
         let found = getNodeById(c, id, thisID);
         if (found) return found;
@@ -335,10 +346,8 @@ function renderTree(rootOverride) {
     svg.setAttribute("width", cW);
     svg.setAttribute("height", cH);
 
-    // Apply zoom and pan transformations
     updateTransform();
 
-    // Draw edges with right-angle connections
     edges.forEach((e) => {
         svg.innerHTML += `<path 
       d="M${e.from.x},${e.from.y} 
@@ -360,6 +369,7 @@ function renderTree(rootOverride) {
     openDetailsIfExists();
 }
 
+// --- Zoom and pan functionality ---
 function updateTransform() {
     const canvas = document.getElementById("canvas-stack");
     canvas.style.transform = `translate(${panOffsetX}px, ${panOffsetY}px) scale(${zoomLevel})`;
@@ -387,6 +397,7 @@ function zoomOut() {
 document.getElementById("zoom-in").addEventListener("click", zoomIn);
 document.getElementById("zoom-out").addEventListener("click", zoomOut);
 document.getElementById("zoom-reset").addEventListener("click", resetView);
+
 document.getElementById("canvas-outer").addEventListener("wheel", function (e) {
     e.preventDefault();
     if (e.deltaY < 0) zoomIn();
